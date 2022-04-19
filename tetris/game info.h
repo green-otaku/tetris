@@ -12,7 +12,7 @@ struct Piece_info {
 	sf::Text tpps;
 	unsigned int pieces;
 	float pps;
-	Piece_info() : tpieces("PIECES", font), tpieces_count("0,", font), tpps("0.00/S", font), pieces(0), pps({0, 0}) {}
+	Piece_info() : tpieces("PIECES", font), tpieces_count("0,", font), tpps("0.00/S", font), pieces(0), pps(0) {}
 };
 
 struct Line_info {
