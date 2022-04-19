@@ -113,7 +113,7 @@ int main() {
         time_data.game_time = sf::milliseconds(time_data.clock.getElapsedTime().asMilliseconds());
         time_data.tseconds.setString("0:" + std::to_string(static_cast<int>(time_data.game_time.asSeconds())));
         time_data.tmilliseconds.setString(":" + std::to_string(time_data.game_time.asMilliseconds() % 1000));
-        piece_data.tpps.setString(std::to_string("0.0"));
+        piece_data.tpps.setString(std::to_string(0.0));
 
         for (auto& [key, value] : key_info) {
             if (value.isPressed) {
