@@ -156,7 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
-    <ClCompile Include="game text.cpp" />
+    <ClCompile Include="game info.cpp" />
     <ClCompile Include="Key_info.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Piece.cpp" />
@@ -164,7 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
-    <ClInclude Include="game text.h" />
+    <ClInclude Include="game info.h" />
     <ClInclude Include="Key_info.h" />
     <ClInclude Include="Piece.h" />
     <ClInclude Include="Utils.h" />

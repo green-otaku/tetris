@@ -7,6 +7,8 @@
 #include "Board.h"
 #include "Key_info.h"
 #include <iostream>
+#include "game info.h"
+#include <cmath>
 
 template<class T>
 Piece piece_cast(T const& what) { return static_cast<Piece>(what); }
@@ -41,13 +43,15 @@ int main() {
     bool can_change = true;
 
     gravity = sf::seconds(1);
-    sf::Clock game_clock;
     sf::Clock gravity_clock;
     sf::Clock key_clock;
 
+    initText();
+    time_data.clock.restart();
+
     while (window.isOpen())
     {
-        const float delta_time = game_clock.restart().asSeconds();
+        const float delta_time = key_clock.restart().asSeconds();
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -106,6 +110,11 @@ int main() {
             }
         }
 
+        time_data.game_time = sf::milliseconds(time_data.clock.getElapsedTime().asMilliseconds());
+        time_data.tseconds.setString("0:" + std::to_string(static_cast<int>(time_data.game_time.asSeconds())));
+        time_data.tmilliseconds.setString(":" + std::to_string(time_data.game_time.asMilliseconds() % 1000));
+        piece_data.tpps.setString(std::to_string("0.0"));
+
         for (auto& [key, value] : key_info) {
             if (value.isPressed) {
                 value.duration += delta_time;
@@ -118,6 +127,8 @@ int main() {
         checkIfClearLine(); // before creating a new piece because then it would also move the newly placed piece
 
         if (new_piece) {
+            piece_data.pieces++;
+            piece_data.tpieces_count.setString(std::to_string(piece_data.pieces));
             if (checkIfDead(current))
                 break;
             current = next.front();
@@ -134,16 +145,15 @@ int main() {
         printBoard(window);
         printTemp(window, temp_sprites);
         printNext(window, next_sprites);
-
-        //window.draw(text);
-
+        printText(window);
+        
         window.display();
 
-        /*auto check = gravity_clock.getElapsedTime();
+        auto check = gravity_clock.getElapsedTime();
         if (check.asSeconds() >= gravity.asSeconds()) {
             current->move(None, Right, &new_piece);
             gravity_clock.restart();
-        }*/
+        }
 
     }
 

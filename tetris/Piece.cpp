@@ -14,7 +14,7 @@ std::pair<ct_t<T, Y>, ct_t<T, Y>> operator+(std::pair<T, T> const& p1, std::pair
     return std::pair<ct_t<T, Y>, ct_t<T, Y>>(p1.first + p2.first, p1.second + p2.second);
 }
 
-void piece_type::emplace() {
+bool piece_type::emplace() {
     for (auto j = 0; j < 4 + 1; j++) {
         bool can_emplace = true;
         for (auto i = 0; i < 4; i++) {
@@ -31,12 +31,13 @@ void piece_type::emplace() {
                 y -= j;
                 board[y][x].setTexture(colours[this_colour]);
             }
-            break;
+            return true;
         }
     }
+    return false;
 }
 
-void piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece) {
+bool piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece) {
     for (auto j = 0; j < 4; j++) {
         bool can_move = true;
         for (auto i = 0; i < 4; i++) {
@@ -57,7 +58,7 @@ void piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece)
             auto const& [x, y] = pos[i];
             if ((y + dy > 23) or (board[y + dy][x].getTexture() != &empty and board[y + dy][x].getTexture() != &blank and !checkIfOwned(*this, point_pos(x, y + dy)))) {
                 if (new_piece) *new_piece = true;
-                return;
+                return false;
             }
         }
         if (can_move) {
@@ -72,12 +73,13 @@ void piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece)
                 y += dy;
                 board[y][x].setTexture(colours[this_colour]);
             }
-            break;
+            return true;
         }
     }
+    return false;
 }
 
-void piece_type::instantMove(Direction const& dx, Direction const& dy, bool insta_place, bool* new_piece) {
+bool piece_type::instantMove(Direction const& dx, Direction const& dy, bool insta_place, bool* new_piece) {
     bool can_move = true;
     int depth = 0;
     bool y_axis = (dx == None);
@@ -113,15 +115,17 @@ void piece_type::instantMove(Direction const& dx, Direction const& dy, bool inst
             board[y][x].setTexture(colours[this_colour]);
         }
         if (insta_place and new_piece) *new_piece = true;
+        return true;
     }
+    return false;
 }
 
-void piece_type::rotate(double deg, int test) {
-    if (this_piece == O) return;
+bool piece_type::rotate(double deg, int test) {
+    if (this_piece == O) return true;
     else if (this_piece == I) {
-        if (test >= 5) return;
+        if (test >= 5) return false;
         //sf::Texture const& texture = *board[pos[1].second][pos[1].first].getTexture();
-        auto entry = wall_kick_I.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)));
+        auto entry = wall_kick_I.find(key(rotate_state % 4, (rotate_state + static_cast<int>(deg / 90)) % 4));
         auto value = (entry != wall_kick_I.end() ? entry->second[test] : pair_int(0, 0));
         pos_type temp_pos;
         for (auto i = 0; i < 4; i++)
@@ -246,14 +250,17 @@ void piece_type::rotate(double deg, int test) {
                 board[y][x].setTexture(colours[this_colour]);
             }
             rotate_state++;
+            test = 0;
+            return true;
         } while (false);
         if (wall_kick)
             rotate(deg, ++test);
+        return false;
     }
     else {
-        if (test >= 5) return;
+        if (test >= 5) return false;
         pos_type temp_pos;
-        auto entry = wall_kick_JLTSZ.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)));
+        auto entry = wall_kick_JLTSZ.find(key(rotate_state % 4, (rotate_state + static_cast<int>(deg / 90)) % 4));
         auto value = (entry != wall_kick_JLTSZ.end() ? entry->second[test] : pair_int(0, 0));
         for (auto i = 0; i < 4; i++)
             temp_pos[i] = pos[i] + value;
@@ -276,9 +283,8 @@ void piece_type::rotate(double deg, int test) {
                     new_pos[2] = point_pos{ j + diffx, i + diffy };
                     continue;
                 }
-                if (matrix[i][j] == 1) {
+                if (matrix[i][j] == 1)
                     new_pos[(counter == 2 ? 3 : counter++)] = point_pos{ j + diffx, i + diffy };
-                }
             }
         }
         bool wall_kick = false;
@@ -303,8 +309,10 @@ void piece_type::rotate(double deg, int test) {
             }
             rotate_state++;
             test = 0;
+            return true;
         } while (false);
         if (wall_kick)
             rotate(deg, ++test);
+        return false;
     }
 }

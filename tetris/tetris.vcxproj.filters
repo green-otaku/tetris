@@ -30,7 +30,7 @@
     <ClCompile Include="Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="game text.cpp">
+    <ClCompile Include="game info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClInclude Include="Key_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="game text.h">
+    <ClInclude Include="game info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

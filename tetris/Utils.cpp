@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <list>
+#include "game info.h"
 
 void initAll(Theme const& t) {
     initTextures(t);
@@ -66,10 +67,6 @@ void initPieces(Theme const& t) {
 #endif
         }
     }
-}
-
-void initFont() {
-    font.loadFromFile("./FiraSans-Regular.otf");
 }
 
 bool checkIfOwned(piece_type const& piece, point_pos const& tile) {

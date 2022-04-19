@@ -23,7 +23,6 @@ enum class Theme { Light, Dark };
 void initAll(Theme const& t);
 void initTextures(Theme const& t);
 void initPieces(Theme const& t);
-void initFont();
 
 //Type shortenings
 using Tile = sf::Sprite;
@@ -54,7 +53,6 @@ inline const auto PI = 3.14159265;
 
 //Variables
 inline sf::Time gravity;
-inline sf::Font font;
 
 //Type forward declarations
 struct board_type;
