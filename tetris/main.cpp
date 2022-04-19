@@ -66,6 +66,12 @@ int main() {
                 else if (event.key.code == sf::Keyboard::Up) {
                     current->rotate(90);
                 }
+                else if (event.key.code == sf::Keyboard::A) {
+                    current->rotate(180);
+                }
+                else if (event.key.code == sf::Keyboard::D) {
+                    current->rotate(270);
+                }
                 else if (event.key.code == sf::Keyboard::Down) {
                     current->instantMove(None, Right, false, &new_piece);
                 }
@@ -129,15 +135,15 @@ int main() {
         printTemp(window, temp_sprites);
         printNext(window, next_sprites);
 
-        window.draw(text);
+        //window.draw(text);
 
         window.display();
 
-        auto check = gravity_clock.getElapsedTime();
+        /*auto check = gravity_clock.getElapsedTime();
         if (check.asSeconds() >= gravity.asSeconds()) {
             current->move(None, Right, &new_piece);
             gravity_clock.restart();
-        }
+        }*/
 
     }
 

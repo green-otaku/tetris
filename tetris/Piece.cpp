@@ -121,9 +121,11 @@ void piece_type::rotate(double deg, int test) {
     else if (this_piece == I) {
         if (test >= 5) return;
         //sf::Texture const& texture = *board[pos[1].second][pos[1].first].getTexture();
+        auto entry = wall_kick_I.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)));
+        auto value = (entry != wall_kick_I.end() ? entry->second[test] : pair_int(0, 0));
         pos_type temp_pos;
         for (auto i = 0; i < 4; i++)
-            temp_pos[i] = pos[i] + wall_kick_I.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)))->second[test];
+            temp_pos[i] = pos[i] + value;
         auto [px1, py1] = temp_pos[1];
         auto [px2, py2] = temp_pos[2];
         auto [diffx, diffy] = pair_int();
@@ -251,8 +253,10 @@ void piece_type::rotate(double deg, int test) {
     else {
         if (test >= 5) return;
         pos_type temp_pos;
+        auto entry = wall_kick_JLTSZ.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)));
+        auto value = (entry != wall_kick_JLTSZ.end() ? entry->second[test] : pair_int(0, 0));
         for (auto i = 0; i < 4; i++)
-            temp_pos[i] = pos[i] + wall_kick_JLTSZ.find(key(rotate_state % 3, rotate_state % 3 + (deg / 90)))->second[test];
+            temp_pos[i] = pos[i] + value;
         auto const& [px, py] = temp_pos[getPivot(this_piece)];
         auto [diffx, diffy] = std::pair<int, int>(px - 1, py - 1);
         rotate3matrix matrix = { {
