@@ -86,7 +86,7 @@ void initBoardBorders(Theme const& t) {
         board_borders[BOARD_VERTICAL_BORDERS + i].setSize(sf::Vector2f(TILE_SIZE * WIDTH, BORDER));
     }
     board_borders[2].setPosition(sf::Vector2f(0, 0));
-    board_borders[3].setPosition(sf::Vector2f(0, ADDITIONAL_HEIGHT * TILE_SIZE));
+    board_borders[3].setPosition(sf::Vector2f(0, ADDITIONAL_HEIGHT * TILE_SIZE - BORDER));
     board_borders[4].setPosition(sf::Vector2f(0, WINDOW_HEIGHT - BORDER));
 }
 
@@ -99,7 +99,7 @@ void initBonusBorders(Theme const& t) {
         bonus_borders[BONUS_VERTICAL_BORDERS + i].setSize(sf::Vector2f(6 * TILE_SIZE, BORDER));
     }
     bonus_borders[BONUS_VERTICAL_BORDERS + 0].setPosition(TILE_SIZE * WIDTH, 0);
-    bonus_borders[BONUS_VERTICAL_BORDERS + 1].setPosition(TILE_SIZE * WIDTH, ADDITIONAL_HEIGHT * TILE_SIZE);
+    bonus_borders[BONUS_VERTICAL_BORDERS + 1].setPosition(TILE_SIZE * WIDTH, ADDITIONAL_HEIGHT * TILE_SIZE - BORDER);
     bonus_borders[BONUS_VERTICAL_BORDERS + 2].setPosition(TILE_SIZE * WIDTH, WINDOW_HEIGHT / 1.5);
 }
 

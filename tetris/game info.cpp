@@ -75,7 +75,7 @@ void initTnext(const Theme& t) {
 }
 
 void initThold(const Theme& t) {
-	thold.setPosition(TEXT_X_POS, BORDER);
+	thold.setPosition(TEXT_X_POS, 0);
 	thold.setScale(0.8, 0.8);
 	thold.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
 }
