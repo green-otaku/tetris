@@ -17,6 +17,7 @@ struct piece_type {
     bool move(Direction const& dx, Direction const& dy, bool* new_piece = nullptr);
     bool instantMove(Direction const& dx, Direction const& dy, bool insta_place = false, bool* new_piece = nullptr);
     bool rotate(double deg = 90, int test = 0);
+    void resetPosition();
 };
 
 #endif

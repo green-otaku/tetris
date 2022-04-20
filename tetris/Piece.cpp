@@ -316,3 +316,13 @@ bool piece_type::rotate(double deg, int test) {
         return false;
     }
 }
+
+void piece_type::resetPosition() {
+    for (auto i = 0; i < 4; i++) {
+        auto& [x, y] = pos[i];
+        auto const& [sx, sy] = (starting_position.find(this_piece) != starting_position.end() ?
+            starting_position.find(this_piece)->second[i] : point_pos{ 0, 0 });
+        x = sx;
+        y = sy;
+    }
+}

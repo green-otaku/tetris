@@ -10,32 +10,36 @@ void initAll(Theme const& t) {
     initTextures(t);
     initPieces(t);
     initFont();
+    initBoardBorders(t);
+    initBonusBorders(t);
 }
 
 void initTextures(Theme const& t) {
     for (auto i = 0; i < COLOURS_NUMBER; i++) {
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-        if (!colours[i].loadFromFile("./colours2.png", sf::IntRect(i * TEXTURE_SIZE, 0, TEXTURE_SIZE, TEXTURE_SIZE)))
-            throw std::exception("could not load colour texture");
-#else TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET
-        if (!colours[i].loadFromFile("./colours.png", sf::IntRect(i * (TILE_SIZE + BORDER), 0, (TILE_SIZE + BORDER), (TILE_SIZE + BORDER))))
-            throw std::exception("could not load colour texture");
-#endif
+        if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+            if (!colours[i].loadFromFile("./colours2.png", sf::IntRect(i * TEXTURE_SIZE, 0, TEXTURE_SIZE, TEXTURE_SIZE)))
+                throw std::exception("could not load colour texture");
+        }
+        else {
+            if (!colours[i].loadFromFile("./colours.png", sf::IntRect(i * (TILE_SIZE + BORDER), 0, (TILE_SIZE + BORDER), (TILE_SIZE + BORDER))))
+                throw std::exception("could not load colour texture");
+        }
     }
 
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-    if (!empty.loadFromFile("./colours2.png", themeEmpty(t)))
-        throw std::exception("could not load empty texture");
+    if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+        if (!empty.loadFromFile("./colours2.png", themeEmpty(t)))
+            throw std::exception("could not load empty texture");
 
-    if (!blank.loadFromFile("./colours2.png", themeBlank(t)))
-        throw std::exception("could not load blank texture");
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-    if (!empty.loadFromFile("./colours.png", themeEmpty(t)))
-        throw std::exception("could not load empty texture");
+        if (!blank.loadFromFile("./colours2.png", themeBlank(t)))
+            throw std::exception("could not load blank texture");
+    }
+    else {
+        if (!empty.loadFromFile("./colours.png", themeEmpty(t)))
+            throw std::exception("could not load empty texture");
 
-    if (!blank.loadFromFile("./colours.png", themeBlank(t)))
-        throw std::exception("could not load blank texture");
-#endif
+        if (!blank.loadFromFile("./colours.png", themeBlank(t)))
+            throw std::exception("could not load blank texture");
+    }
 }
 
 void initPieces(Theme const& t) {
@@ -43,30 +47,60 @@ void initPieces(Theme const& t) {
         for (auto j = 0; j < WIDTH; j++) {
             auto& this_elem = board[i][j];
             this_elem.setTexture(blank);
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-            this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
-            this_elem.setPosition(j * TILE_SIZE + BORDER, i * TILE_SIZE);
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-            this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE);
-#endif
+            if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+                this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
+                this_elem.setPosition(j * TILE_SIZE + BORDER, i * TILE_SIZE);
+            }
+            else {
+                this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE);
+            }
         }
     }
     for (auto i = ADDITIONAL_HEIGHT; i < HEIGHT; i++) {
         for (auto j = 0; j < WIDTH; j++) {
             auto& this_elem = board[i][j];
             this_elem.setTexture(empty);
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-            this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
-            this_elem.setPosition(j * TILE_SIZE + BORDER, i * TILE_SIZE);
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-            this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE);
-            if (i == HEIGHT - 1) {
-                this_elem.setOrigin(this_elem.getOrigin().x, this_elem.getOrigin().y + 2 * BORDER);
-                this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE + BORDER);
+            if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+                this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
+                this_elem.setPosition(j * TILE_SIZE + BORDER, i * TILE_SIZE);
             }
-#endif
+            else {
+                this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE);
+                if (i == HEIGHT - 1) {
+                    this_elem.setOrigin(this_elem.getOrigin().x, this_elem.getOrigin().y + 2 * BORDER);
+                    this_elem.setPosition(j * TILE_SIZE, i * TILE_SIZE + BORDER);
+                }
+            }
         }
     }
+}
+
+void initBoardBorders(Theme const& t) {
+    for(auto i = 0; i < BOARD_VERTICAL_BORDERS; i++) {
+        board_borders[i].setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
+        board_borders[i].setSize(sf::Vector2f(BORDER, WINDOW_HEIGHT));
+        board_borders[i].setPosition(i * TILE_SIZE * WIDTH, 0);
+    }
+    for (auto i = 0; i < BOARD_HORIZONTAL_BORDERS; i++) {
+        board_borders[BOARD_VERTICAL_BORDERS + i].setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
+        board_borders[BOARD_VERTICAL_BORDERS + i].setSize(sf::Vector2f(TILE_SIZE * WIDTH, BORDER));
+    }
+    board_borders[2].setPosition(sf::Vector2f(0, 0));
+    board_borders[3].setPosition(sf::Vector2f(0, ADDITIONAL_HEIGHT * TILE_SIZE));
+    board_borders[4].setPosition(sf::Vector2f(0, WINDOW_HEIGHT - BORDER));
+}
+
+void initBonusBorders(Theme const& t) {
+    bonus_borders[0].setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
+    bonus_borders[0].setSize(sf::Vector2f(BORDER, WINDOW_HEIGHT / 1.5 + BORDER));
+    bonus_borders[0].setPosition(TILE_SIZE * (WIDTH + 6), 0);
+    for (auto i = 0; i < BONUS_HORIZONTAL_BORDERS; i++) {
+        bonus_borders[BONUS_VERTICAL_BORDERS + i].setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
+        bonus_borders[BONUS_VERTICAL_BORDERS + i].setSize(sf::Vector2f(6 * TILE_SIZE, BORDER));
+    }
+    bonus_borders[BONUS_VERTICAL_BORDERS + 0].setPosition(TILE_SIZE * WIDTH, 0);
+    bonus_borders[BONUS_VERTICAL_BORDERS + 1].setPosition(TILE_SIZE * WIDTH, ADDITIONAL_HEIGHT * TILE_SIZE);
+    bonus_borders[BONUS_VERTICAL_BORDERS + 2].setPosition(TILE_SIZE * WIDTH, WINDOW_HEIGHT / 1.5);
 }
 
 bool checkIfOwned(piece_type const& piece, point_pos const& tile) {
@@ -79,23 +113,25 @@ bool checkIfOwned(piece_type const& piece, point_pos const& tile) {
 }
 
 sf::IntRect themeEmpty(Theme const& t) {
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-    return (t == Theme::Dark ? sf::IntRect(TEXTURE_SIZE * COLOURS_NUMBER, 0, TEXTURE_SIZE, TEXTURE_SIZE) :
-        sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 1), 0, TEXTURE_SIZE, TEXTURE_SIZE));
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-    return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * COLOURS_NUMBER, 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
-        sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 1), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
-#endif
+    if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+        return (t == Theme::Dark ? sf::IntRect(TEXTURE_SIZE * COLOURS_NUMBER, 0, TEXTURE_SIZE, TEXTURE_SIZE) :
+            sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 1), 0, TEXTURE_SIZE, TEXTURE_SIZE));
+    }
+    else {
+        return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * COLOURS_NUMBER, 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
+            sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 1), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
+    }
 }
 
 sf::IntRect themeBlank(Theme const& t) {
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-    return (t == Theme::Dark ? sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 2), 0, TEXTURE_SIZE, TEXTURE_SIZE) :
-        sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 3), 0, TEXTURE_SIZE, TEXTURE_SIZE));
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-    return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 2), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
-        sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 3), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
-#endif
+    if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+        return (t == Theme::Dark ? sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 2), 0, TEXTURE_SIZE, TEXTURE_SIZE) :
+            sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 3), 0, TEXTURE_SIZE, TEXTURE_SIZE));
+    }
+    else {
+        return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 2), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
+            sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 3), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
+    }
 }
 
 sf::Color themeWindow(Theme const& t) {
@@ -132,14 +168,15 @@ sf::Sprite* emplaceNext(std::list<piece_type*> const& next) {
             auto const& [x, y] = ptr->pos[i];
             auto&& this_elem = sprites[temp * 4 + i];
             this_elem.setTexture(colours[ptr->this_colour]);
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-            this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
-            this_elem.setPosition(WIDTH * TILE_SIZE + BORDER + TILE_SIZE + (x - 3) * TILE_SIZE,
-                (y - 4) * TILE_SIZE + 2 * TILE_SIZE + (3 + temp * 3) * TILE_SIZE);
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-            this_elem.setPosition(WIDTH * TILE_SIZE + TILE_SIZE + (x - 3) * TILE_SIZE,
-                (y - 4) * TILE_SIZE + TILE_SIZE);
-#endif
+            if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+                this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
+                this_elem.setPosition(WIDTH * TILE_SIZE + BORDER + TILE_SIZE + (x - 3) * TILE_SIZE,
+                    (y - 4) * TILE_SIZE + 2 * TILE_SIZE + (3 + temp * 3) * TILE_SIZE);
+            }
+            else {
+                this_elem.setPosition(WIDTH * TILE_SIZE + TILE_SIZE + (x - 3) * TILE_SIZE,
+                    (y - 4) * TILE_SIZE + TILE_SIZE);
+            }
         }
         temp++;
     }
@@ -148,20 +185,22 @@ sf::Sprite* emplaceNext(std::list<piece_type*> const& next) {
 
 sf::Sprite* emplaceTemp(piece_type* temp) {
     static sf::Sprite sprites[4];
-    for (auto& [x, y] : temp->pos)
+    for (auto& [x, y] : temp->pos) {
         board[y][x].setTexture(y >= 4 ? empty : blank);
+    }
     int counter = 0;
     for (auto const& [x, y] : starting_position.find(temp->this_piece)->second) {
         auto&& this_elem = sprites[counter++];
         this_elem.setTexture(colours[temp->this_colour]);
-#if TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE
-        this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
-        this_elem.setPosition(WIDTH * TILE_SIZE + BORDER + TILE_SIZE + (x - 3) * TILE_SIZE,
-            (y - 4) * TILE_SIZE + TILE_SIZE);
-#else /*TETRIS_COLOURS_MODE == TETRIS_COLOURS_SET*/
-        this_elem.setPosition(WIDTH * TILE_SIZE + TILE_SIZE + (x - 3) * TILE_SIZE, 
-            (y - 4) * TILE_SIZE + TILE_SIZE);
-#endif
+        if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+            this_elem.setScale(DIMENSIONS.x / 10, DIMENSIONS.y / 10);
+            this_elem.setPosition(WIDTH * TILE_SIZE + BORDER + TILE_SIZE + (x - 3) * TILE_SIZE,
+                (y - 4) * TILE_SIZE + TILE_SIZE);
+        }
+        else {
+            this_elem.setPosition(WIDTH * TILE_SIZE + TILE_SIZE + (x - 3) * TILE_SIZE,
+                (y - 4) * TILE_SIZE + TILE_SIZE);
+        }
     }
     return sprites;
 }
@@ -292,6 +331,23 @@ void printm(rotate3matrix const& matrix) {
         std::cout << '\n';
     }
     std::cout << '\n';
+}
+
+void printBoardBorders(sf::RenderWindow& window) {
+    for (auto i = 0; i < BOARD_VERTICAL_BORDERS + BOARD_HORIZONTAL_BORDERS; i++) {
+        window.draw(board_borders[i]);
+    }
+}
+
+void printBonusBorders(sf::RenderWindow& window) {
+    for (auto i = 0; i < BONUS_VERTICAL_BORDERS + BONUS_HORIZONTAL_BORDERS; i++) {
+        window.draw(bonus_borders[i]);
+    }
+}
+
+void printBorders(sf::RenderWindow& window) {
+    printBoardBorders(window);
+    printBonusBorders(window);
 }
 
 std::map<Piece, pos_type> starting_position = {

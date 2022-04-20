@@ -7,11 +7,11 @@
 #include <list>
 
 //Texture source
-#define TETRIS_COLOURS_SET 0
-#define TETRIS_COLOURS_FLEXIBLE 1
+inline auto TETRIS_COLOURS_SET = 0;
+inline auto TETRIS_COLOURS_FLEXIBLE = 1;
 
 //Change this to swap tiles from files
-#define TETRIS_COLOURS_MODE TETRIS_COLOURS_FLEXIBLE
+inline auto TETRIS_COLOURS_MODE = TETRIS_COLOURS_FLEXIBLE;
 
 //Enums
 enum Piece { I, J, L, O, S, T, Z };
@@ -23,6 +23,8 @@ enum class Theme { Light, Dark };
 void initAll(Theme const& t);
 void initTextures(Theme const& t);
 void initPieces(Theme const& t);
+void initBoardBorders(Theme const& t);
+void initBonusBorders(Theme const& t);
 
 //Type shortenings
 using Tile = sf::Sprite;
@@ -50,6 +52,10 @@ inline const auto WINDOW_HEIGHT = static_cast<unsigned int>(24 * TILE_SIZE);
 inline const auto WINDOW_WIDTH = static_cast<unsigned int>(600);
 inline const auto COLOURS_NUMBER = 7;
 inline const auto PI = 3.14159265;
+inline const auto BOARD_VERTICAL_BORDERS = 2;
+inline const auto BOARD_HORIZONTAL_BORDERS = 3;
+inline const auto BONUS_VERTICAL_BORDERS = 1;
+inline const auto BONUS_HORIZONTAL_BORDERS = 3;
 
 //Variables
 inline sf::Time gravity;
@@ -72,11 +78,16 @@ int getPivot(Piece const& p);
 rotate3matrix rotate3(const rotate3matrix& origin, double deg);
 rotate4matrix rotate4(rotate4matrix const& origin, double deg);
 void printm(rotate3matrix const&);
+void printBoardBorders(sf::RenderWindow& window);
+void printBonusBorders(sf::RenderWindow& window);
+void printBorders(sf::RenderWindow& window);
 
 //Textures
 inline std::array<sf::Texture, COLOURS_NUMBER> colours;
 inline sf::Texture empty;
 inline sf::Texture blank;
+inline sf::RectangleShape board_borders[BOARD_VERTICAL_BORDERS + BOARD_HORIZONTAL_BORDERS];
+inline sf::RectangleShape bonus_borders[BONUS_VERTICAL_BORDERS + BONUS_HORIZONTAL_BORDERS];
 
 extern std::map<Piece, pos_type> starting_position;
 extern std::map<key, tests> wall_kick_JLTSZ;

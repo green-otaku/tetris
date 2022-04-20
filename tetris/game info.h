@@ -12,7 +12,8 @@ struct Piece_info {
 	sf::Text tpps;
 	unsigned int pieces;
 	float pps;
-	Piece_info() : tpieces("PIECES", font), tpieces_count("0,", font), tpps("0.00/S", font), pieces(0), pps(0) {}
+	Piece_info() : tpieces("PIECES", font), tpieces_count("0.", font), tpps("0.00/S", font), pieces(0), pps(0) {}
+	void reset();
 };
 
 struct Line_info {
@@ -21,7 +22,8 @@ struct Line_info {
 	sf::Text tlines_goal;
 	unsigned int lines;
 	unsigned int lines_goal;
-	Line_info() : tlines("LINES", font), tlines_count("0", font), tlines_goal("/0", font), lines(0), lines_goal(0) {}
+	Line_info() : tlines("LINES", font), tlines_count("0", font), tlines_goal("/40", font), lines(0), lines_goal(0) {}
+	void reset();
 };
 
 struct Time_info {
@@ -31,6 +33,7 @@ struct Time_info {
 	sf::Time game_time;
 	sf::Clock clock;
 	Time_info() : ttime("TIME", font), tseconds("0:00.", font), tmilliseconds("000", font) {}
+	void reset();
 };
 
 struct Score_info {
@@ -38,6 +41,7 @@ struct Score_info {
 	sf::Text tscore_number;
 	unsigned int score;
 	Score_info() : tscore("SCORE", font), tscore_number("0", font), score(0) {}
+	void reset();
 };
 
 extern sf::Text tnext;
@@ -49,12 +53,12 @@ extern Score_info score_data;
 
 void initFont();
 void printText(sf::RenderWindow& window);
-void initText();
-void initTnext();
-void initThold();
-void initPiece_data();
-void initLine_data();
-void initTime_data();
-void initScore_data();
+void initText(const Theme& t);
+void initTnext(const Theme& t);
+void initThold(const Theme& t);
+void initPiece_data(const Theme& t);
+void initLine_data(const Theme& t);
+void initTime_data(const Theme& t);
+void initScore_data(const Theme& t);
 
 #endif

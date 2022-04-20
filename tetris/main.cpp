@@ -14,7 +14,7 @@ template<class T>
 Piece piece_cast(T const& what) { return static_cast<Piece>(what); }
 
 int main() {
-    
+
     Theme t = Theme::Dark;
 
     initAll(t);
@@ -41,12 +41,14 @@ int main() {
    
     bool new_piece = false;
     bool can_change = true;
+    int lock_change = 0;
 
     gravity = sf::seconds(1);
     sf::Clock gravity_clock;
     sf::Clock key_clock;
+    //sf::View view;
 
-    initText();
+    initText(t);
     time_data.clock.restart();
 
     while (window.isOpen())
@@ -57,29 +59,42 @@ int main() {
         while (window.pollEvent(event))
         {
 
+            //if (event.type == sf::Event::Resized) {
+            //    //window.setSize();
+            //    view.setSize(window.getSize().x, window.getSize().y);
+            //}
+
             if (event.type == sf::Event::Closed)
                 window.close();
 
             if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Left) {
+                    lock_change++;
                     key_info[event.key.code].isPressed = true;
                 }
                 else if (event.key.code == sf::Keyboard::Right) {
+                    lock_change++;
                     key_info[event.key.code].isPressed = true;
                 }
                 else if (event.key.code == sf::Keyboard::Up) {
+                    lock_change++;
                     current->rotate(90);
                 }
                 else if (event.key.code == sf::Keyboard::A) {
+                    lock_change++;
                     current->rotate(180);
                 }
-                else if (event.key.code == sf::Keyboard::D) {
+                else if (event.key.code == sf::Keyboard::LControl) {
+                    lock_change++;
                     current->rotate(270);
                 }
                 else if (event.key.code == sf::Keyboard::Down) {
+                    gravity_clock.restart();
+                    lock_change++;
                     current->instantMove(None, Right, false, &new_piece);
                 }
                 else if (event.key.code == sf::Keyboard::Space) {
+                    lock_change++;
                     current->instantMove(None, Right, true, &new_piece);
                 }
                 else if (event.key.code == sf::Keyboard::LShift) {
@@ -87,6 +102,7 @@ int main() {
                         if (!temp) {
                             temp = current;
                             temp_sprites = emplaceTemp(temp);
+                            temp->resetPosition();
                             current = next.front();
                             next.pop_front();
                             next.push_back(new piece_type(piece_cast((piece_type::piece++ % 7))));
@@ -97,10 +113,14 @@ int main() {
                             temp = current;
                             current = t;
                             temp_sprites = emplaceTemp(temp);
+                            temp->resetPosition();
                             current->emplace();
                         }
                         can_change = false;
                     }
+                }
+                else if (event.key.code == sf::Keyboard::R) {
+                    key_info[event.key.code].isPressed = true;
                 }
             }
 
@@ -111,7 +131,8 @@ int main() {
         }
 
         time_data.game_time = sf::milliseconds(time_data.clock.getElapsedTime().asMilliseconds());
-        time_data.tseconds.setString("0:" + std::to_string(static_cast<int>(time_data.game_time.asSeconds())));
+        time_data.tseconds.setString(std::to_string(static_cast<int>(time_data.game_time.asSeconds() / 60)) + ":"
+            + std::to_string(static_cast<int>(time_data.game_time.asSeconds()) % 60));
         time_data.tmilliseconds.setString(":" + std::to_string(time_data.game_time.asMilliseconds() % 1000));
         piece_data.tpps.setString(std::to_string(0.0));
 
@@ -120,6 +141,9 @@ int main() {
                 value.duration += delta_time;
                 if (key == sf::Keyboard::Left or key == sf::Keyboard::Right) {
                     keySideMove(key, value, current);
+                }
+                else if (key == sf::Keyboard::R) {
+                    value.isPressed = false;
                 }
             }
         }
@@ -141,16 +165,19 @@ int main() {
         }
         
         window.clear(themeWindow(t));
+        //window.setView(view);
 
         printBoard(window);
         printTemp(window, temp_sprites);
         printNext(window, next_sprites);
         printText(window);
+        printBorders(window);
         
         window.display();
 
+        if (lock_change >= 2) lock_change = 2;
         auto check = gravity_clock.getElapsedTime();
-        if (check.asSeconds() >= gravity.asSeconds()) {
+        if (check.asSeconds() >= gravity.asSeconds() + lock_change * 0.5) {
             current->move(None, Right, &new_piece);
             gravity_clock.restart();
         }
