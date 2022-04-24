@@ -54,6 +54,7 @@ int main() {
     while (window.isOpen())
     {
         const float delta_time = key_clock.restart().asSeconds();
+        current->setGhost();
 
         sf::Event event;
         while (window.pollEvent(event))
@@ -131,7 +132,7 @@ int main() {
         }
 
         time_data.game_time = sf::milliseconds(time_data.clock.getElapsedTime().asMilliseconds());
-        time_data.tseconds.setString(std::to_string(static_cast<int>(time_data.game_time.asSeconds() / 60)) + ":"
+        time_data.tseconds.setString(std::to_string(static_cast<int>(time_data.game_time.asSeconds() / 60)) + ":" + (static_cast<int>(time_data.game_time.asSeconds()) % 60 >= 10 ? "" : "0")
             + std::to_string(static_cast<int>(time_data.game_time.asSeconds()) % 60));
         time_data.tmilliseconds.setString(":" + std::to_string(time_data.game_time.asMilliseconds() % 1000));
         piece_data.tpps.setString(std::to_string(0.0));
@@ -180,6 +181,7 @@ int main() {
         if (check.asSeconds() >= gravity.asSeconds() + lock_change * 0.5) {
             current->move(None, Right, &new_piece);
             gravity_clock.restart();
+            lock_change = 0;
         }
 
     }

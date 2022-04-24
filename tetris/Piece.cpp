@@ -3,6 +3,8 @@
 #include "Piece.h"
 #include <iostream>
 #include <cmath>
+#pragma warning(disable: 26812)
+//#pragma warning(disable: 33011)
 
 unsigned int piece_type::colour = static_cast<unsigned int>(0);
 unsigned int piece_type::piece = static_cast<unsigned int>(0);
@@ -20,7 +22,8 @@ bool piece_type::emplace() {
         for (auto i = 0; i < 4; i++) {
             auto const& [x, y] = pos[i];
             if (!(board[y - j][x].getTexture() == &blank or
-                board[y - j][x].getTexture() == &empty)) {
+                board[y - j][x].getTexture() == &empty or
+                board[y - j][x].getTexture() == &ghost)) {
                 can_emplace = false;
                 break;
             }
@@ -42,13 +45,14 @@ bool piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece)
         bool can_move = true;
         for (auto i = 0; i < 4; i++) {
             auto const& [x, y] = pos[i];
-            if (x + dx < 0 or x + dx > 9 or y + dy < 0) {
+            if (x + dx < 0 or x + dx > 9 or y + dy < 0 or y + dy > 23) {
                 can_move = false;
                 break;
             }
             if (!(board[y + dy][x + dx].getTexture() == &empty or 
                 board[y + dy][x + dx].getTexture() == &blank or 
-                checkIfOwned(*this, point_pos(x + dx, y + dy)))) {
+                checkIfOwned(*this, point_pos(x + dx, y + dy)) or
+                board[y + dy][x + dx].getTexture() == &ghost)) {
                 can_move = false;
                 break;
             }
@@ -56,7 +60,10 @@ bool piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece)
         // wtf does this for do idk but its important ig
         for(auto i = 0; i < 4; i++) {
             auto const& [x, y] = pos[i];
-            if ((y + dy > 23) or (board[y + dy][x].getTexture() != &empty and board[y + dy][x].getTexture() != &blank and !checkIfOwned(*this, point_pos(x, y + dy)))) {
+            if ((y + dy > 23) or (board[y + dy][x].getTexture() != &empty and
+                board[y + dy][x].getTexture() != &blank and
+                !checkIfOwned(*this, point_pos(x, y + dy)) and
+                board[y + dy][x].getTexture() != & ghost)) {
                 if (new_piece) *new_piece = true;
                 return false;
             }
@@ -93,7 +100,8 @@ bool piece_type::instantMove(Direction const& dx, Direction const& dy, bool inst
             }
             if (!(board[y + (y_axis ? depth : 0)][x + (!y_axis ? depth : 0)].getTexture() == &empty or
                 board[y + (y_axis ? depth : 0)][x + (!y_axis ? depth : 0)].getTexture() == &blank or
-                checkIfOwned(*this, point_pos(x + (!y_axis ? depth : 0), y + (y_axis ? depth : 0))))) {
+                checkIfOwned(*this, point_pos(x + (!y_axis ? depth : 0), y + (y_axis ? depth : 0))) or 
+                board[y + (y_axis ? depth : 0)][x + (!y_axis ? depth : 0)].getTexture() == &ghost)) {
                 can_move = false;
                 break;
             }
@@ -155,8 +163,8 @@ bool piece_type::rotate(double deg, int test) {
             { 0, 0, 0, 0 },
             { 0, 0, 0, 0 }
         } };
-        for(auto const& [x, y] : temp_pos)
-            matrix[y - diffy][x - diffx] = 1;
+        for (auto const& [x, y] : temp_pos)
+            if(!(y < 0 or x < 0)) matrix[y - diffy][x - diffx] = 1;
         matrix = rotate4(matrix, deg);
         /*
         0 0 0 0
@@ -233,11 +241,15 @@ bool piece_type::rotate(double deg, int test) {
         bool wall_kick = false;
         do {
             for (auto [tx, ty] : new_pos) {
-                if ((board[ty][tx].getTexture() != &empty and board[ty][tx].getTexture() != &blank) and
-                    !checkIfOwned(*this, point_pos(tx, ty)))
+                if (tx < 0 or tx > 9 or ty < 0 or ty > 23) {
                     wall_kick = true;
-                else if (tx < 0 or tx > 9 or ty < 0 or ty > 23)
+                    break;
+                }
+                else if ((board[ty][tx].getTexture() != &empty and board[ty][tx].getTexture() != &blank) and
+                    !checkIfOwned(*this, point_pos(tx, ty))) {
                     wall_kick = true;
+                    break;
+                }
             }
             if (wall_kick) break;
             for (const auto& [x, y] : pos)
@@ -289,12 +301,17 @@ bool piece_type::rotate(double deg, int test) {
         }
         bool wall_kick = false;
         do {
+            int i = 0;
             for (auto [tx, ty] : new_pos) {
-                if ((board[ty][tx].getTexture() != &empty and board[ty][tx].getTexture() != &blank) and
-                    !checkIfOwned(*this, point_pos(tx, ty)))
+                if ((tx < 0 or tx > 9 or ty < 0 or ty > 23)) {
                     wall_kick = true;
-                else if (tx < 0 or tx > 9 or ty < 0 or ty > 23)
+                    break;
+                }
+                else if ((board[ty][tx].getTexture() != &empty and board[ty][tx].getTexture() != &blank) and
+                    !checkIfOwned(*this, point_pos(tx, ty))) {
                     wall_kick = true;
+                    break;
+                }
             }
             if (wall_kick) break;
             //sf::Texture const& texture = *board[pos[1].second][pos[1].first].getTexture();
@@ -307,7 +324,7 @@ bool piece_type::rotate(double deg, int test) {
                 y = ty;
                 board[y][x].setTexture(colours[this_colour]);
             }
-            rotate_state++;
+            rotate_state += static_cast<int>(deg / 90);
             test = 0;
             return true;
         } while (false);
@@ -324,5 +341,53 @@ void piece_type::resetPosition() {
             starting_position.find(this_piece)->second[i] : point_pos{ 0, 0 });
         x = sx;
         y = sy;
+    }
+}
+
+void piece_type::setGhost() {
+    static pair_int ghost_pos[4] = { { -1, -1 }, { -1, -1 }, { -1, -1 }, { -1, -1 } };
+    int piece_height = 0;
+    pair_int minmax{ 24, 0 };
+    if (ghost_pos[0].first != -1) {
+        for (auto i = 0; i < 4; i++) {
+            auto const& [x, y] = pos[i];
+            auto const& [gx, gy] = ghost_pos[i];
+            auto& [min, max] = minmax;
+            if ((gx != x or gy != y) and board[gy][gx].getTexture() == &ghost) {
+                board[gy][gx].setTexture(gy >= 4 ? empty : blank);
+            }
+            if (y < min) min = y;
+            else if (y > max) max = y;
+        }
+    }
+    piece_height = minmax.second - minmax.first + 1;
+    bool ghost_good = true;
+    ghost_depth = 0;
+    while (ghost_good) {
+        for (auto i = 0; i < 4; i++) {
+            auto const& [x, y] = pos[i];
+            if (y + ghost_depth < 0 or y + ghost_depth > 23) {
+                ghost_good = false;
+                break;
+            }
+            if (!(board[y + ghost_depth][x].getTexture() == &empty or
+                board[y + ghost_depth][x].getTexture() == &blank or
+                board[y + ghost_depth][x].getTexture() == &ghost or
+                checkIfOwned(*this, point_pos(x, y + ghost_depth)))) {
+                ghost_good = false;
+                break;
+            }
+        }
+        if (ghost_good) ghost_depth++;
+        else break;
+    }
+    if (--ghost_depth > piece_height) {
+        for (auto i = 0; i < 4; i++) {
+            auto& [x, y] = pos[i];
+            auto& [gx, gy] = ghost_pos[i];
+            board[y + ghost_depth][x].setTexture(ghost);
+            gx = x;
+            gy = y + ghost_depth;
+        }
     }
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <list>
 #include "game info.h"
+#pragma warning(disable: 4244)
 
 void initAll(Theme const& t) {
     initTextures(t);
@@ -32,6 +33,8 @@ void initTextures(Theme const& t) {
 
         if (!blank.loadFromFile("./colours2.png", themeBlank(t)))
             throw std::exception("could not load blank texture");
+
+        ghost.loadFromFile("./colours2.png", themeGhost(t));
     }
     else {
         if (!empty.loadFromFile("./colours.png", themeEmpty(t)))
@@ -39,6 +42,8 @@ void initTextures(Theme const& t) {
 
         if (!blank.loadFromFile("./colours.png", themeBlank(t)))
             throw std::exception("could not load blank texture");
+
+        ghost.loadFromFile("./colours.png", themeGhost(t));
     }
 }
 
@@ -131,6 +136,17 @@ sf::IntRect themeBlank(Theme const& t) {
     else {
         return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 2), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
             sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 3), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
+    }
+}
+
+sf::IntRect themeGhost(Theme const& t) {
+    if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+        return (t == Theme::Dark ? sf::IntRect(TEXTURE_SIZE * (COLOURS_NUMBER + 1), 0, TEXTURE_SIZE, TEXTURE_SIZE) :
+            sf::IntRect(TEXTURE_SIZE * COLOURS_NUMBER, 0, TEXTURE_SIZE, TEXTURE_SIZE));
+    }
+    else {
+        return (t == Theme::Dark ? sf::IntRect((TILE_SIZE + BORDER) * (COLOURS_NUMBER + 1), 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER) :
+            sf::IntRect((TILE_SIZE + BORDER) * COLOURS_NUMBER, 0, TILE_SIZE + BORDER, TILE_SIZE + BORDER));
     }
 }
 

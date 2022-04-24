@@ -1,4 +1,6 @@
 #include "game info.h"
+#pragma warning(disable: 4244)
+#pragma warning(disable: 4305)
 
 unsigned int TEXT_X_POS = WIDTH * TILE_SIZE + BORDER;
 
@@ -108,7 +110,7 @@ void initTime_data(const Theme& t) {
 	time_data.ttime.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
 	time_data.tseconds.setPosition(TEXT_X_POS, (ADDITIONAL_HEIGHT + HEIGHT / 1.5) * TILE_SIZE + TILE_SIZE - BORDER);
 	time_data.tseconds.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
-	time_data.tmilliseconds.setPosition(TEXT_X_POS + 55, (ADDITIONAL_HEIGHT + HEIGHT / 1.5) * TILE_SIZE + TILE_SIZE + 2 * BORDER);
+	time_data.tmilliseconds.setPosition(TEXT_X_POS + 60, (ADDITIONAL_HEIGHT + HEIGHT / 1.5) * TILE_SIZE + TILE_SIZE + 2 * BORDER);
 	time_data.tmilliseconds.setScale(0.7, 0.7);
 	time_data.tmilliseconds.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
 }

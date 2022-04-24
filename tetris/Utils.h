@@ -28,7 +28,7 @@ void initBonusBorders(Theme const& t);
 
 //Type shortenings
 using Tile = sf::Sprite;
-using point_pos = std::pair<unsigned int, unsigned int>;
+using point_pos = std::pair<int, int>;
 using pos_type = std::array<point_pos, 4>;
 using pair_int = std::pair<int, int>;
 using key = pair_int;
@@ -68,6 +68,7 @@ struct piece_type;
 bool checkIfOwned(piece_type const& piece, point_pos const& tile);
 sf::IntRect themeEmpty(Theme const& t);
 sf::IntRect themeBlank(Theme const& t);
+sf::IntRect themeGhost(Theme const& t);
 sf::Color themeWindow(Theme const& t);
 void printBoard(sf::RenderWindow& window);
 void printTemp(sf::RenderWindow& window, sf::Sprite* sprites);
@@ -86,6 +87,7 @@ void printBorders(sf::RenderWindow& window);
 inline std::array<sf::Texture, COLOURS_NUMBER> colours;
 inline sf::Texture empty;
 inline sf::Texture blank;
+inline sf::Texture ghost;
 inline sf::RectangleShape board_borders[BOARD_VERTICAL_BORDERS + BOARD_HORIZONTAL_BORDERS];
 inline sf::RectangleShape bonus_borders[BONUS_VERTICAL_BORDERS + BONUS_HORIZONTAL_BORDERS];
 
