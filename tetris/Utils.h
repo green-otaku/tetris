@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#pragma warning(disable: 26812)
+
 #include <array>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -25,6 +27,8 @@ void initTextures(Theme const& t);
 void initPieces(Theme const& t);
 void initBoardBorders(Theme const& t);
 void initBonusBorders(Theme const& t);
+void initBackground();
+void initMenu(const Theme& t);
 
 //Type shortenings
 using Tile = sf::Sprite;
@@ -82,6 +86,8 @@ void printm(rotate3matrix const&);
 void printBoardBorders(sf::RenderWindow& window);
 void printBonusBorders(sf::RenderWindow& window);
 void printBorders(sf::RenderWindow& window);
+int getDigitsN(int n);
+std::vector<int> getDigits(int n);
 
 //Textures
 inline std::array<sf::Texture, COLOURS_NUMBER> colours;
@@ -90,9 +96,35 @@ inline sf::Texture blank;
 inline sf::Texture ghost;
 inline sf::RectangleShape board_borders[BOARD_VERTICAL_BORDERS + BOARD_HORIZONTAL_BORDERS];
 inline sf::RectangleShape bonus_borders[BONUS_VERTICAL_BORDERS + BONUS_HORIZONTAL_BORDERS];
+inline sf::Texture background_texture;
+inline sf::Sprite background;
 
-extern std::map<Piece, pos_type> starting_position;
+//extern std::map<Piece, pos_type> starting_position;
+static std::map<Piece, pos_type> starting_position = {
+    { I, {
+        { { 3, 4 }, { 4, 4 }, /*pivot*/ { 5, 4 }, { 6, 4 } } //{ x, y }
+    }},
+    { J, {
+        { { 3, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } } // x + 3, y + 4
+    }},
+    { L, {
+        { { 5, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+    }},
+    { O, {
+        { { 4, 4 }, { 5, 5 }, /*pivot*/ { 4, 5 }, { 5, 4 } }
+    }},
+    { S, {
+        { { 4, 4 }, { 5, 4 }, { 4, /*pivot*/ 5 }, { 3, 5} }
+    }},
+    { T, {
+        { { 4, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+    }},
+    { Z, {
+        { { 3, 4 }, { 4, 4 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+    }}
+};
 extern std::map<key, tests> wall_kick_JLTSZ;
 extern std::map<key, tests> wall_kick_I;
+extern std::map<char, int> character_width;
 
 #endif

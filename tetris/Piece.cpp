@@ -270,6 +270,7 @@ bool piece_type::rotate(double deg, int test) {
         return false;
     }
     else {
+    std::cout << rotate_state % 4 << ' ' << (rotate_state + static_cast<int>(deg / 90)) % 4 << '\n';
         if (test >= 5) return false;
         pos_type temp_pos;
         auto entry = wall_kick_JLTSZ.find(key(rotate_state % 4, (rotate_state + static_cast<int>(deg / 90)) % 4));
@@ -360,7 +361,7 @@ void piece_type::setGhost() {
             else if (y > max) max = y;
         }
     }
-    piece_height = minmax.second - minmax.first + 1;
+    piece_height = minmax.second - minmax.first;
     bool ghost_good = true;
     ghost_depth = 0;
     while (ghost_good) {

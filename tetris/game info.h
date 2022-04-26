@@ -7,23 +7,31 @@
 extern sf::Font font;
 
 struct Piece_info {
+private:
+	struct Tpps {
+		int integral;
+		int decimal;
+	};
+public:
 	sf::Text tpieces;
 	sf::Text tpieces_count;
 	sf::Text tpps;
 	unsigned int pieces;
-	float pps;
-	Piece_info() : tpieces("PIECES", font), tpieces_count("0.", font), tpps("0.00/S", font), pieces(0), pps(0) {}
+	Tpps pps;
+	Piece_info() : tpieces("PIECES", font), tpieces_count("0.", font), tpps("0.00/S", font), pieces(0), pps({0, 0}) {}
 	void reset();
+	void update();
 };
 
 struct Line_info {
+	unsigned int lines_goal;
+	unsigned int lines;
 	sf::Text tlines;
 	sf::Text tlines_count;
 	sf::Text tlines_goal;
-	unsigned int lines;
-	unsigned int lines_goal;
-	Line_info() : tlines("LINES", font), tlines_count("0", font), tlines_goal("/40", font), lines(0), lines_goal(0) {}
+	Line_info() : tlines("LINES", font), tlines_count("0", font), tlines_goal("/" + std::to_string(lines_goal), font), lines(0), lines_goal(40) {}
 	void reset();
+	void update();
 };
 
 struct Time_info {
@@ -34,6 +42,7 @@ struct Time_info {
 	sf::Clock clock;
 	Time_info() : ttime("TIME", font), tseconds("0:00.", font), tmilliseconds("000", font) {}
 	void reset();
+	void update();
 };
 
 struct Score_info {
@@ -42,6 +51,7 @@ struct Score_info {
 	unsigned int score;
 	Score_info() : tscore("SCORE", font), tscore_number("0", font), score(0) {}
 	void reset();
+	void update();
 };
 
 extern sf::Text tnext;

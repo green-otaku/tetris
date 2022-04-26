@@ -5,6 +5,7 @@
 #include <iostream>
 #include <list>
 #include "game info.h"
+#include "game mode.h"
 #pragma warning(disable: 4244)
 
 void initAll(Theme const& t) {
@@ -13,6 +14,8 @@ void initAll(Theme const& t) {
     initFont();
     initBoardBorders(t);
     initBonusBorders(t);
+    initBackground();
+    initMenu(t);
 }
 
 void initTextures(Theme const& t) {
@@ -106,6 +109,17 @@ void initBonusBorders(Theme const& t) {
     bonus_borders[BONUS_VERTICAL_BORDERS + 0].setPosition(TILE_SIZE * WIDTH, 0);
     bonus_borders[BONUS_VERTICAL_BORDERS + 1].setPosition(TILE_SIZE * WIDTH, ADDITIONAL_HEIGHT * TILE_SIZE - BORDER);
     bonus_borders[BONUS_VERTICAL_BORDERS + 2].setPosition(TILE_SIZE * WIDTH, WINDOW_HEIGHT / 1.5);
+}
+
+void initBackground() {
+    background_texture.loadFromFile("./background.png");
+    background.setTexture(background_texture);
+    background.setScale(WINDOW_WIDTH * 1.0 / background_texture.getSize().x, WINDOW_HEIGHT * 1.0 / background_texture.getSize().y);
+}
+
+void initMenu(const Theme& t) {
+    tmenu.setPos();
+    tmenu.setColour(t);
 }
 
 bool checkIfOwned(piece_type const& piece, point_pos const& tile) {
@@ -366,29 +380,43 @@ void printBorders(sf::RenderWindow& window) {
     printBonusBorders(window);
 }
 
-std::map<Piece, pos_type> starting_position = {
-    { I, {
-        { { 3, 4 }, { 4, 4 }, /*pivot*/ { 5, 4 }, { 6, 4 } } //{ x, y }
-    }},
-    { J, {
-        { { 3, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } } // x + 3, y + 4
-    }},
-    { L, {
-        { { 5, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
-    }},
-    { O, {
-        { { 4, 4 }, { 5, 5 }, /*pivot*/ { 4, 5 }, { 5, 4 } }
-    }},
-    { S, {
-        { { 4, 4 }, { 5, 4 }, { 4, /*pivot*/ 5 }, { 3, 5} }
-    }},
-    { T, {
-        { { 4, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
-    }},
-    { Z, {
-        { { 3, 4 }, { 4, 4 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
-    }}
-};
+int getDigitsN(int n) {
+    if (n < 10) return 1;
+    return 1 + getDigitsN(n / 10);
+}
+
+std::vector<int> getDigits(int n) {
+    std::vector<int> v;
+    do {
+        v.push_back(n % 10);
+        n /= 10;
+    } while (n >= 10);
+    return v;
+}
+
+//std::map<Piece, pos_type> starting_position = {
+//    { I, {
+//        { { 3, 4 }, { 4, 4 }, /*pivot*/ { 5, 4 }, { 6, 4 } } //{ x, y }
+//    }},
+//    { J, {
+//        { { 3, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } } // x + 3, y + 4
+//    }},
+//    { L, {
+//        { { 5, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+//    }},
+//    { O, {
+//        { { 4, 4 }, { 5, 5 }, /*pivot*/ { 4, 5 }, { 5, 4 } }
+//    }},
+//    { S, {
+//        { { 4, 4 }, { 5, 4 }, { 4, /*pivot*/ 5 }, { 3, 5} }
+//    }},
+//    { T, {
+//        { { 4, 4 }, { 3, 5 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+//    }},
+//    { Z, {
+//        { { 3, 4 }, { 4, 4 }, { 4, /*pivot*/ 5 }, { 5, 5 } }
+//    }}
+//};
 
 // J L T S Z
 std::map<key, tests> wall_kick_JLTSZ = {
@@ -444,4 +472,22 @@ std::map<key, tests> wall_kick_I = {
     { { 0, 3 }, {{
         { 0, 0 }, { -1, 0 }, { 2, 0 }, { -1, -2 }, { 2, 1 }
         }} }
+};
+
+std::map<char, int> character_width = {
+    { '0', 16 },
+    { '1', 12 },
+    { '2', 14 },
+    { '3', 14 },
+    { '4', 15 },
+    { '5', 15 },
+    { '6', 16 },
+    { '7', 14 },
+    { '8', 16 },
+    { '9', 15 },
+    { ':', 7 },
+    { '.', 7 },
+    { ',', 7 },
+    { '/', 13 },
+
 };

@@ -2,7 +2,8 @@
 #include <iostream>
 #include "game info.h"
 
-void checkIfClearLine() {
+void checkIfClearLine(unsigned int& score) {
+	int lines_cleared = 0;
 	for (auto i = HEIGHT - 1; i >= 4; i--) {
 		bool clear_this_line = true;
 		for (auto j = 0; j < 10; j++)
@@ -11,8 +12,10 @@ void checkIfClearLine() {
 			moveLines(i++);
 			line_data.lines++;
 			line_data.tlines_count.setString(std::to_string(line_data.lines));
+			lines_cleared++;
 		}
 	}
+	if(lines_cleared) score += 100 * lines_cleared + (lines_cleared - 1) * 50;
 }
 
 void moveLines(int line_id) {

@@ -11,7 +11,7 @@ struct board_type {
 inline board_type board_;
 inline auto& board = board_.data;
 
-void checkIfClearLine();
+void checkIfClearLine(unsigned int& score);
 void moveLines(int line_id);
 bool checkIfDead(piece_type*);
 
