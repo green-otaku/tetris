@@ -21,8 +21,8 @@ int main() {
 
     while (window.isOpen())
     {
-        main_menu(window);
-        //game(window);
+        //main_menu(window);
+        game(window);
     }
 
 }

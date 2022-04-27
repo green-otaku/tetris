@@ -153,7 +153,6 @@ void game(sf::RenderWindow& window) {
         piece_data.tpieces_count.setString(std::to_string(piece_data.pieces));
         if (checkIfDead(current))
         {
-            // 
         }
         current = next.front();
         next.pop_front();

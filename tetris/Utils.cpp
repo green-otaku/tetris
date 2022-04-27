@@ -178,8 +178,10 @@ void printBoard(sf::RenderWindow& window) {
 
 void printNext(sf::RenderWindow& window, sf::Sprite* sprites) {
     if (sprites) {
-        for (auto i = 0; i < 16; i++)
+        for (auto i = 0; i < 16; i++) {
+            sprites[i].setTextureRect(sf::IntRect(0, 0, 10, 10));
             window.draw(sprites[i]);
+        }
     }
 }
 
@@ -209,6 +211,9 @@ sf::Sprite* emplaceNext(std::list<piece_type*> const& next) {
             }
         }
         temp++;
+    }
+    for (auto i = 0; i < 16; i++) {
+        std::cout << sprites[i].getTexture() << ' ' << sprites[i].getPosition().x << ' ' << sprites[i].getPosition().y << '\n';
     }
     return sprites;
 }
