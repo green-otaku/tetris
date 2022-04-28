@@ -8,14 +8,14 @@
 #include "game mode.h"
 #pragma warning(disable: 4244)
 
-void initAll(Theme const& t) {
+void initAll(Theme const& t, sf::RenderWindow& window) {
     initTextures(t);
     initPieces(t);
     initFont();
     initBoardBorders(t);
     initBonusBorders(t);
     initBackground();
-    initMenu(t);
+    initMenu(t, window);
 }
 
 void initTextures(Theme const& t) {
@@ -116,14 +116,15 @@ void initBonusBorders(Theme const& t) {
 }
 
 void initBackground() {
-    background_texture.loadFromFile("./background2.png");
+    background_texture.loadFromFile("./background.png");
     background.setTexture(background_texture);
     background.setScale(WINDOW_WIDTH * 1.0 / background_texture.getSize().x, WINDOW_HEIGHT * 1.0 / background_texture.getSize().y);
     logo_texture.loadFromFile("./logo.png");
+    highlighted.loadFromFile("./colours.png", sf::IntRect(8 * DIMENSIONS.x + 2 * BORDER, 0, DIMENSIONS.x + 2 * BORDER, DIMENSIONS.y + 2 * BORDER));
 }
 
-void initMenu(const Theme& t) {
-    tmenu.setPos();
+void initMenu(const Theme& t, sf::RenderWindow& window) {
+    tmenu.setPos(window);
     tmenu.setColour(t);
 }
 

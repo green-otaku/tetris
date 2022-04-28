@@ -1,7 +1,8 @@
 #include "game mode.h"
 #include <random>
+#pragma warning(disable: 4244)
 
-void menu_text::setPos() {
+void menu_text::setPos(sf::RenderWindow& window) {
     tplay.setPosition(107, 170);
     tplay.setCharacterSize(40);
     toptions.setPosition(72, 240);
@@ -14,6 +15,25 @@ void menu_text::setPos() {
         buttons[i].setScale(1.5, 1.5);
         buttons[i].setPosition(55 + (i % 4) * (1.5 * DIMENSIONS.x + 2 * BORDER), 170 + 70 * (i / 4));
     }
+    play_data.top = window.getPosition().y + 170;
+    play_data.left = window.getPosition().x + 55;
+    play_data.height = play_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
+    play_data.width = play_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
+
+    options_data.top = window.getPosition().y + 170 + 70;
+    options_data.left = window.getPosition().x + 55;
+    options_data.height = options_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
+    options_data.width = options_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
+
+    scores_data.top = window.getPosition().y + 170 + 70 * 2;
+    scores_data.left = window.getPosition().x + 55;
+    scores_data.height = scores_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
+    scores_data.width = scores_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
+
+    exit_data.top = window.getPosition().y + 170 + 70 * 3;
+    exit_data.left = window.getPosition().x + 55;
+    exit_data.height = exit_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
+    exit_data.width = exit_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
     logo.setScale(0.4, 0.2);
     logo.setPosition(20, 20);
 }
@@ -23,7 +43,6 @@ void menu_text::setColour(const Theme& t) {
     toptions.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     tscores.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     texit.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
-    int imgs[4] = { 1, 2, 5, 6 };
     for (auto i = 0; i < 4; i++) {
         button_textures[i].loadFromFile("colours.png", sf::IntRect(imgs[i] * (DIMENSIONS.x + 2 * BORDER), 1, DIMENSIONS.x + 2 * BORDER, DIMENSIONS.y + 3 * BORDER));
     }
@@ -198,9 +217,32 @@ bool game(sf::RenderWindow& window) {
 }
 
 void main_menu(sf::RenderWindow& window) {
+
     sf::Event event;
     while (window.pollEvent(event)) {
+        if (event.type == sf::Event::MouseMoved) {
+            auto mouse_pos = sf::Mouse::getPosition();
+            std::cout << mouse_pos.x << ' ' << mouse_pos.y << ' ' << tmenu.play_data.top << ' ' << tmenu.play_data.left << '\n';
+            if (mouseIn(tmenu.play_data, mouse_pos))
+                for (auto i = 0; i < 4; i++) tmenu.buttons[0 * 4 + i].setTexture(highlighted);
+            else
+                for (auto i = 0; i < 4; i++) tmenu.buttons[0 * 4 + i].setTexture(button_textures[0]);
 
+            if (mouseIn(tmenu.options_data, mouse_pos))
+                for (auto i = 0; i < 4; i++) tmenu.buttons[1 * 4 + i].setTexture(highlighted);
+            else
+                for (auto i = 0; i < 4; i++) tmenu.buttons[1 * 4 + i].setTexture(button_textures[1]);
+
+            if (mouseIn(tmenu.scores_data, mouse_pos))
+                for (auto i = 0; i < 4; i++) tmenu.buttons[2 * 4 + i].setTexture(highlighted);
+            else
+                for (auto i = 0; i < 4; i++) tmenu.buttons[2 * 4 + i].setTexture(button_textures[2]);
+
+            if (mouseIn(tmenu.exit_data, mouse_pos))
+                for (auto i = 0; i < 4; i++) tmenu.buttons[3 * 4 + i].setTexture(highlighted);
+            else
+                for (auto i = 0; i < 4; i++) tmenu.buttons[3 * 4 + i].setTexture(button_textures[3]);
+        }
     }
 
     window.clear();
@@ -219,4 +261,8 @@ void freeze(sf::Texture& texture) {
             }
         }
     }
+}
+
+bool mouseIn(const sf::IntRect& area, const sf::Vector2i& pos) {
+    return (pos.x >= area.left and pos.x <= area.width and pos.y >= area.top and pos.y <= area.height);
 }

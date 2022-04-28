@@ -23,13 +23,13 @@ enum Option { Play, Options, Scores, Exit };
 enum class Theme { Light, Dark };
 
 //Init functions
-void initAll(Theme const& t);
+void initAll(Theme const& t, sf::RenderWindow& window);
 void initTextures(Theme const& t);
 void initPieces(Theme const& t);
 void initBoardBorders(Theme const& t);
 void initBonusBorders(Theme const& t);
 void initBackground();
-void initMenu(const Theme& t);
+void initMenu(const Theme& t, sf::RenderWindow& window);
 
 //Type shortenings
 using Tile = sf::Sprite;
@@ -102,6 +102,7 @@ inline sf::Texture background_texture;
 inline sf::Sprite background;
 inline sf::Texture logo_texture;
 inline std::array<sf::Texture, 4> button_textures;
+inline sf::Texture highlighted; //8
 
 //extern std::map<Piece, pos_type> starting_position;
 static std::map<Piece, pos_type> starting_position = {

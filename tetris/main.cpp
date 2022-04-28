@@ -2,16 +2,14 @@
 #include "game mode.h"
 
 int main() {
-
-    initAll(t);
+    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
+    initAll(t, window);
 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distrib(0, 7 - 1); // [0, 6] closed range
 
     current->emplace();
-
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tetris");
 
     gravity = sf::seconds(1);
     //sf::View view;

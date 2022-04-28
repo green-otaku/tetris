@@ -43,14 +43,20 @@ struct menu_text {
     sf::Text texit;
     std::array<sf::Sprite, 16> buttons;
     menu_text() : tplay("PLAY", font), toptions("OPTIONS", font), tscores("SCORES", font), texit("EXIT", font) {}
-    void setPos();
+    void setPos(sf::RenderWindow& window);
     void setColour(const Theme& t);
     void draw(sf::RenderWindow& window);
+    sf::IntRect play_data;
+    sf::IntRect options_data;
+    sf::IntRect scores_data;
+    sf::IntRect exit_data;
+    int imgs[4] = { 1, 2, 5, 6 };
 };
 inline menu_text tmenu;
 
 bool game(sf::RenderWindow& window);
 void main_menu(sf::RenderWindow& window);
 void freeze(sf::Texture& texture);
+bool mouseIn(const sf::IntRect& area, const sf::Vector2i& pos);
 
 #endif
