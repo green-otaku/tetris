@@ -19,10 +19,12 @@ int main() {
     initText(t);
     time_data.clock.restart();
 
-    while (window.isOpen())
+    bool play = true;
+
+    while (window.isOpen() and play)
     {
-        //main_menu(window);
-        game(window);
+        main_menu(window);
+        //game(window);
     }
 
 }

@@ -19,34 +19,38 @@ void initAll(Theme const& t) {
 }
 
 void initTextures(Theme const& t) {
-    for (auto i = 0; i < COLOURS_NUMBER; i++) {
+    static bool init = false;
+    if (!init) {
+        for (auto i = 0; i < COLOURS_NUMBER; i++) {
+            if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
+                if (!colours[i].loadFromFile("./colours2.png", sf::IntRect(i * TEXTURE_SIZE, 0, TEXTURE_SIZE, TEXTURE_SIZE)))
+                    throw std::exception("could not load colour texture");
+            }
+            else {
+                if (!colours[i].loadFromFile("./colours.png", sf::IntRect(i * (TILE_SIZE + BORDER), 0, (TILE_SIZE + BORDER), (TILE_SIZE + BORDER))))
+                    throw std::exception("could not load colour texture");
+            }
+        }
+
         if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
-            if (!colours[i].loadFromFile("./colours2.png", sf::IntRect(i * TEXTURE_SIZE, 0, TEXTURE_SIZE, TEXTURE_SIZE)))
-                throw std::exception("could not load colour texture");
+            if (!empty.loadFromFile("./colours2.png", themeEmpty(t)))
+                throw std::exception("could not load empty texture");
+
+            if (!blank.loadFromFile("./colours2.png", themeBlank(t)))
+                throw std::exception("could not load blank texture");
+
+            ghost.loadFromFile("./colours2.png", themeGhost(t));
         }
         else {
-            if (!colours[i].loadFromFile("./colours.png", sf::IntRect(i * (TILE_SIZE + BORDER), 0, (TILE_SIZE + BORDER), (TILE_SIZE + BORDER))))
-                throw std::exception("could not load colour texture");
+            if (!empty.loadFromFile("./colours.png", themeEmpty(t)))
+                throw std::exception("could not load empty texture");
+
+            if (!blank.loadFromFile("./colours.png", themeBlank(t)))
+                throw std::exception("could not load blank texture");
+
+            ghost.loadFromFile("./colours.png", themeGhost(t));
         }
-    }
-
-    if (TETRIS_COLOURS_MODE == TETRIS_COLOURS_FLEXIBLE) {
-        if (!empty.loadFromFile("./colours2.png", themeEmpty(t)))
-            throw std::exception("could not load empty texture");
-
-        if (!blank.loadFromFile("./colours2.png", themeBlank(t)))
-            throw std::exception("could not load blank texture");
-
-        ghost.loadFromFile("./colours2.png", themeGhost(t));
-    }
-    else {
-        if (!empty.loadFromFile("./colours.png", themeEmpty(t)))
-            throw std::exception("could not load empty texture");
-
-        if (!blank.loadFromFile("./colours.png", themeBlank(t)))
-            throw std::exception("could not load blank texture");
-
-        ghost.loadFromFile("./colours.png", themeGhost(t));
+        init = true;
     }
 }
 
@@ -112,9 +116,10 @@ void initBonusBorders(Theme const& t) {
 }
 
 void initBackground() {
-    background_texture.loadFromFile("./background.png");
+    background_texture.loadFromFile("./background2.png");
     background.setTexture(background_texture);
     background.setScale(WINDOW_WIDTH * 1.0 / background_texture.getSize().x, WINDOW_HEIGHT * 1.0 / background_texture.getSize().y);
+    logo_texture.loadFromFile("./logo.png");
 }
 
 void initMenu(const Theme& t) {
@@ -179,7 +184,7 @@ void printBoard(sf::RenderWindow& window) {
 void printNext(sf::RenderWindow& window, sf::Sprite* sprites) {
     if (sprites) {
         for (auto i = 0; i < 16; i++) {
-            sprites[i].setTextureRect(sf::IntRect(0, 0, 10, 10));
+            //sprites[i].setTextureRect(sf::IntRect(0, 0, 10, 10));
             window.draw(sprites[i]);
         }
     }
@@ -193,6 +198,7 @@ void printTemp(sf::RenderWindow& window, sf::Sprite* sprites) {
 }
 
 sf::Sprite* emplaceNext(std::list<piece_type*> const& next) {
+    initTextures(t);
     static sf::Sprite sprites[16];
     int temp = 0;
     for (auto const& ptr : next) {
@@ -211,9 +217,6 @@ sf::Sprite* emplaceNext(std::list<piece_type*> const& next) {
             }
         }
         temp++;
-    }
-    for (auto i = 0; i < 16; i++) {
-        std::cout << sprites[i].getTexture() << ' ' << sprites[i].getPosition().x << ' ' << sprites[i].getPosition().y << '\n';
     }
     return sprites;
 }

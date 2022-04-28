@@ -18,6 +18,7 @@ inline auto TETRIS_COLOURS_MODE = TETRIS_COLOURS_FLEXIBLE;
 //Enums
 enum Piece { I, J, L, O, S, T, Z };
 enum Direction { Left = -1, None = 0, Right = 1 };
+enum Option { Play, Options, Scores, Exit };
 
 enum class Theme { Light, Dark };
 
@@ -63,6 +64,7 @@ inline const auto BONUS_HORIZONTAL_BORDERS = 3;
 
 //Variables
 inline sf::Time gravity;
+inline Option option;
 
 //Type forward declarations
 struct board_type;
@@ -98,6 +100,8 @@ inline sf::RectangleShape board_borders[BOARD_VERTICAL_BORDERS + BOARD_HORIZONTA
 inline sf::RectangleShape bonus_borders[BONUS_VERTICAL_BORDERS + BONUS_HORIZONTAL_BORDERS];
 inline sf::Texture background_texture;
 inline sf::Sprite background;
+inline sf::Texture logo_texture;
+inline std::array<sf::Texture, 4> button_textures;
 
 //extern std::map<Piece, pos_type> starting_position;
 static std::map<Piece, pos_type> starting_position = {

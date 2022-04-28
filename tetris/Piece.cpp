@@ -17,6 +17,7 @@ std::pair<ct_t<T, Y>, ct_t<T, Y>> operator+(std::pair<T, T> const& p1, std::pair
 }
 
 bool piece_type::emplace() {
+    rotate_state = 0;
     for (auto j = 0; j < 4 + 1; j++) {
         bool can_emplace = true;
         for (auto i = 0; i < 4; i++) {
@@ -261,7 +262,7 @@ bool piece_type::rotate(double deg, int test) {
                 y = ty;
                 board[y][x].setTexture(colours[this_colour]);
             }
-            rotate_state++;
+            rotate_state += static_cast<int>(deg / 90);
             test = 0;
             return true;
         } while (false);
@@ -270,7 +271,6 @@ bool piece_type::rotate(double deg, int test) {
         return false;
     }
     else {
-    std::cout << rotate_state % 4 << ' ' << (rotate_state + static_cast<int>(deg / 90)) % 4 << '\n';
         if (test >= 5) return false;
         pos_type temp_pos;
         auto entry = wall_kick_JLTSZ.find(key(rotate_state % 4, (rotate_state + static_cast<int>(deg / 90)) % 4));

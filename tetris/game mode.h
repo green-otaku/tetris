@@ -36,21 +36,21 @@ inline sf::Sprite* next_sprites = emplaceNext(next);
 inline Theme t = Theme::Dark;
 
 struct menu_text {
-    sf::Text tmain;
+    sf::Sprite logo;
     sf::Text tplay;
     sf::Text toptions;
     sf::Text tscores;
     sf::Text texit;
-    std::array<sf::RectangleShape, 5> buttons;
-    sf::RectangleShape& main_button = buttons[0];
-    menu_text() : tmain("TETRIS", font), tplay("PLAY", font), toptions("OPTIONS", font), tscores("SCORES", font), texit("EXIT", font) {}
+    std::array<sf::Sprite, 16> buttons;
+    menu_text() : tplay("PLAY", font), toptions("OPTIONS", font), tscores("SCORES", font), texit("EXIT", font) {}
     void setPos();
     void setColour(const Theme& t);
     void draw(sf::RenderWindow& window);
 };
 inline menu_text tmenu;
 
-void game(sf::RenderWindow& window);
+bool game(sf::RenderWindow& window);
 void main_menu(sf::RenderWindow& window);
+void freeze(sf::Texture& texture);
 
 #endif

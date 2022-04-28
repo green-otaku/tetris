@@ -1,43 +1,50 @@
 #include "game mode.h"
+#include <random>
 
 void menu_text::setPos() {
-    tmain.setPosition(250, 250);
-    tplay.setPosition(250, 400);
-    toptions.setPosition(250, 450);
-    tscores.setPosition(250, 500);
-    texit.setPosition(250, 550);
-    main_button.setPosition(200, 250);
-    main_button.setSize(sf::Vector2f(200, 50));
-    for (auto i = 0; i < 4; i++) {
-        buttons[1 + i].setSize(sf::Vector2f(200, 50));
-        buttons[1 + i].setPosition(200, 350 + (i + 1) * 50);
+    tplay.setPosition(107, 170);
+    tplay.setCharacterSize(40);
+    toptions.setPosition(72, 240);
+    toptions.setCharacterSize(40);
+    tscores.setPosition(85, 310);
+    tscores.setCharacterSize(40);
+    texit.setPosition(113, 380);
+    texit.setCharacterSize(40);
+    for (auto i = 0; i < 16; i++) {
+        buttons[i].setScale(1.5, 1.5);
+        buttons[i].setPosition(55 + (i % 4) * (1.5 * DIMENSIONS.x + 2 * BORDER), 170 + 70 * (i / 4));
     }
+    logo.setScale(0.4, 0.2);
+    logo.setPosition(20, 20);
 }
 
 void menu_text::setColour(const Theme& t) {
-    tmain.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     tplay.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     toptions.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     tscores.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
     texit.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
-    for (auto& i : buttons) {
-        i.setFillColor(t == Theme::Dark ? sf::Color::Black : sf::Color::White);
-        i.setOutlineColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
-        i.setOutlineThickness(5);
+    int imgs[4] = { 1, 2, 5, 6 };
+    for (auto i = 0; i < 4; i++) {
+        button_textures[i].loadFromFile("colours.png", sf::IntRect(imgs[i] * (DIMENSIONS.x + 2 * BORDER), 1, DIMENSIONS.x + 2 * BORDER, DIMENSIONS.y + 3 * BORDER));
     }
+    for (auto i = 0; i < 16; i++) {
+        buttons[i].setTexture(button_textures[i / 4]);
+    }
+    logo.setTexture(logo_texture);
 }
 
 void menu_text::draw(sf::RenderWindow& window) {
     for (auto& i : buttons)
         window.draw(i);
-    window.draw(tmain);
+    window.draw(logo);
     window.draw(tplay);
     window.draw(toptions);
     window.draw(tscores);
     window.draw(texit);
 }
 
-void game(sf::RenderWindow& window) {
+bool game(sf::RenderWindow& window) {
+
     const float delta_time = key_clock.restart().asSeconds();
     current->setGhost();
 
@@ -151,9 +158,6 @@ void game(sf::RenderWindow& window) {
     if (new_piece) {
         piece_data.pieces++;
         piece_data.tpieces_count.setString(std::to_string(piece_data.pieces));
-        if (checkIfDead(current))
-        {
-        }
         current = next.front();
         next.pop_front();
         next.push_back(new piece_type(piece_cast((piece_type::piece++ % 7))));
@@ -178,6 +182,11 @@ void game(sf::RenderWindow& window) {
 
     window.display();
 
+    if (checkIfDead(current)) {
+        freeze(colours[current->this_colour]);
+        return false;
+    }
+
     if (lock_change >= 2) lock_change = 2;
     auto check = gravity_clock.getElapsedTime();
     if (check.asSeconds() >= gravity.asSeconds() + lock_change * 0.5) {
@@ -185,7 +194,9 @@ void game(sf::RenderWindow& window) {
         gravity_clock.restart();
         lock_change = 0;
     }
+    return true;
 }
+
 void main_menu(sf::RenderWindow& window) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -198,4 +209,14 @@ void main_menu(sf::RenderWindow& window) {
     tmenu.draw(window);
 
     window.display();
+}
+
+void freeze(sf::Texture& texture) {
+    for (auto i = 0; i < WIDTH; i++) {
+        for (auto j = 0; j < HEIGHT; j++) {
+            if (board[j][i].getTexture() != &empty and board[j][i].getTexture() != &blank) {
+                board[j][i].setTexture(texture);
+            }
+        }
+    }
 }
