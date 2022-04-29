@@ -117,7 +117,7 @@ void initBonusBorders(Theme const& t) {
 }
 
 void initBackground() {
-    background_texture.loadFromFile("./background2.png");
+    background_texture.loadFromFile("./background.png");
     background.setTexture(background_texture);
     background.setScale(WINDOW_WIDTH * 1.0 / background_texture.getSize().x, WINDOW_HEIGHT * 1.0 / background_texture.getSize().y);
     logo_texture.loadFromFile("./logo.png");
