@@ -15,27 +15,31 @@ void menu_text::setPos(sf::RenderWindow& window) {
         buttons[i].setScale(1.5, 1.5);
         buttons[i].setPosition(55 + (i % 4) * (1.5 * DIMENSIONS.x + 2 * BORDER), 170 + 70 * (i / 4));
     }
-    play_data.top = window.getPosition().y + 170;
-    play_data.left = window.getPosition().x + 55;
-    play_data.height = play_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
-    play_data.width = play_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
-
-    options_data.top = window.getPosition().y + 170 + 70;
-    options_data.left = window.getPosition().x + 55;
-    options_data.height = options_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
-    options_data.width = options_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
-
-    scores_data.top = window.getPosition().y + 170 + 70 * 2;
-    scores_data.left = window.getPosition().x + 55;
-    scores_data.height = scores_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
-    scores_data.width = scores_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
-
-    exit_data.top = window.getPosition().y + 170 + 70 * 3;
-    exit_data.left = window.getPosition().x + 55;
-    exit_data.height = exit_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER;
-    exit_data.width = exit_data.left + 4 * 1.5 * DIMENSIONS.x + 2 * BORDER;
+    updatePos(window);
     logo.setScale(0.4, 0.2);
     logo.setPosition(20, 20);
+}
+
+void menu_text::updatePos(sf::RenderWindow& window) {
+    play_data.top = window.getPosition().y + 170 + 42;
+    play_data.left = window.getPosition().x + 55 + 5;
+    play_data.height = play_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER + 2;
+    play_data.width = play_data.left + 4 * 1.5 * (DIMENSIONS.x + 2 * BORDER);
+
+    options_data.top = window.getPosition().y + 170 + 70 + 42;
+    options_data.left = window.getPosition().x + 55 + 5;
+    options_data.height = options_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER + 2;
+    options_data.width = options_data.left + 4 * 1.5 * (DIMENSIONS.x + 2 * BORDER);
+
+    scores_data.top = window.getPosition().y + 170 + 70 * 2 + 42;
+    scores_data.left = window.getPosition().x + 55 + 5;
+    scores_data.height = scores_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER + 2;
+    scores_data.width = scores_data.left + 4 * 1.5 * (DIMENSIONS.x + 2 * BORDER);
+
+    exit_data.top = window.getPosition().y + 170 + 70 * 3 + 42;
+    exit_data.left = window.getPosition().x + 55 + 5;
+    exit_data.height = exit_data.top + 1.5 * DIMENSIONS.x + 2 * BORDER + 2;
+    exit_data.width = exit_data.left + 4 * 1.5 * (DIMENSIONS.x + 2 * BORDER);
 }
 
 void menu_text::setColour(const Theme& t) {
@@ -63,6 +67,7 @@ void menu_text::draw(sf::RenderWindow& window) {
 }
 
 bool game(sf::RenderWindow& window) {
+    restart_game = false;
 
     const float delta_time = key_clock.restart().asSeconds();
     current->setGhost();
@@ -132,7 +137,7 @@ bool game(sf::RenderWindow& window) {
                 }
             }
             else if (event.key.code == sf::Keyboard::R) {
-                key_info[event.key.code].isPressed = true;
+                restart_game = true;
             }
         }
 
@@ -203,6 +208,8 @@ bool game(sf::RenderWindow& window) {
 
     if (checkIfDead(current)) {
         freeze(colours[current->this_colour]);
+        // reset everything regarding game here perhaps
+        action_clicked[Play] = false;
         return false;
     }
 
@@ -220,9 +227,9 @@ void main_menu(sf::RenderWindow& window) {
 
     sf::Event event;
     while (window.pollEvent(event)) {
+        auto mouse_pos = sf::Mouse::getPosition();
         if (event.type == sf::Event::MouseMoved) {
-            auto mouse_pos = sf::Mouse::getPosition();
-            std::cout << mouse_pos.x << ' ' << mouse_pos.y << ' ' << tmenu.play_data.top << ' ' << tmenu.play_data.left << '\n';
+            tmenu.updatePos(window);
             if (mouseIn(tmenu.play_data, mouse_pos))
                 for (auto i = 0; i < 4; i++) tmenu.buttons[0 * 4 + i].setTexture(highlighted);
             else
@@ -243,6 +250,24 @@ void main_menu(sf::RenderWindow& window) {
             else
                 for (auto i = 0; i < 4; i++) tmenu.buttons[3 * 4 + i].setTexture(button_textures[3]);
         }
+        
+        if (event.type == sf::Event::MouseButtonPressed and sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        
+            if (mouseIn(tmenu.play_data, mouse_pos)) {
+                action_clicked[Play] = true;
+            }
+            else if (mouseIn(tmenu.options_data, mouse_pos)) {
+                action_clicked[Options] = true;
+            }
+            else if (mouseIn(tmenu.scores_data, mouse_pos)) {
+                action_clicked[Scores] = true;
+            }
+            else if (mouseIn(tmenu.exit_data, mouse_pos)) {
+                action_clicked[Exit] = true;
+            }
+
+        }
+
     }
 
     window.clear();
@@ -251,6 +276,11 @@ void main_menu(sf::RenderWindow& window) {
     tmenu.draw(window);
 
     window.display();
+}
+
+void initFile() {
+    scores_write.open("./scores.bin", std::ios::binary | std::ios::out);
+    scores_read.open("./scores.bin", std::ios::binary | std::ios::in);
 }
 
 void freeze(sf::Texture& texture) {

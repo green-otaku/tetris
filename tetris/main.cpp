@@ -21,8 +21,11 @@ int main() {
 
     while (window.isOpen() and play)
     {
-        main_menu(window);
-        //game(window);
+        if (action_clicked[Play] or restart_game) game(window);
+        else if (action_clicked[Options]) {} // finish options
+        else if (action_clicked[Scores]) {} // finish scores
+        else if (action_clicked[Exit]) break;
+        else main_menu(window);
     }
 
 }

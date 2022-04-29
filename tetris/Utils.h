@@ -65,6 +65,7 @@ inline const auto BONUS_HORIZONTAL_BORDERS = 3;
 //Variables
 inline sf::Time gravity;
 inline Option option;
+inline bool restart_game = false;
 
 //Type forward declarations
 struct board_type;
