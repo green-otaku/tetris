@@ -76,7 +76,8 @@ void printText(sf::RenderWindow& window) {
 	window.draw(piece_data.tpps);
 	window.draw(line_data.tlines);
 	window.draw(line_data.tlines_count);
-	if(gm == GM_40_LINES) window.draw(line_data.tlines_goal);
+	if (gm == GM_40_LINES) window.draw(line_data.tlines_goal);
+	else line_data.lines_goal = 0;
 	window.draw(time_data.ttime);
 	window.draw(time_data.tseconds);
 	window.draw(time_data.tmilliseconds);

@@ -51,7 +51,7 @@ struct Line_info {
 	friend std::ostream& operator<<(std::ostream& os, Line_info const& line) {
 		os << line.tlines.getString().toAnsiString() << '?' <<
 			line.tlines_count.getString().toAnsiString() << '?' <<
-			line.tlines_goal.getString().toAnsiString() << '?';
+			(line.lines_goal == 40 ? line.tlines_goal.getString().toAnsiString() : "/-") << '?';
 		return os;
 	}
 	friend std::istream& operator>>(std::istream& is, Line_info& line) {

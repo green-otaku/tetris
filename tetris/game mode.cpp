@@ -698,10 +698,6 @@ void SavePrompt::show(sf::RenderWindow& window) {
     window.draw(saveButton.text);
 }
 
-void SavePrompt::save(Option const& option) {
-
-}
-
 void SavePrompt::init(sf::RenderWindow& window) {
 
     discardButton.text.setFont(font);
@@ -837,6 +833,68 @@ void ScoreEntry::init(const Theme& t) {
     }
 }
 
+void ScoreEntry::draw(sf::RenderWindow& window) {
+    if (colour != -1) {
+        window.draw(shape);
+        for (auto& i : separator) window.draw(i); 
+        window.draw(pieceData.tpieces);
+        window.draw(pieceData.tpieces_count);
+        window.draw(pieceData.tpps);
+
+        window.draw(lineData.tlines);
+        window.draw(lineData.tlines_count);
+        window.draw(lineData.tlines_goal);
+
+        window.draw(scoreData.tscore);
+        window.draw(scoreData.tscore_number);
+
+        window.draw(timeData.tmilliseconds);
+        window.draw(timeData.tseconds);
+        window.draw(timeData.ttime);
+    }
+}
+
+void ScoreModeMenu_t::load(sf::RenderWindow& window) {
+    fscores.open("./scores.txt", std::ios::in);
+    scores40L.scores.clear();
+    scores2M.scores.clear();
+    scoresUN.scores.clear();
+    ScoreEntry entry;
+    ScoreEntry::Mode_t lastInsertion;
+    while (!fscores.eof()) {
+        fscores >> entry;
+        if (entry.mode == ScoreEntry::_40L) {
+            scores40L.scores.push_back(entry);
+            lastInsertion = ScoreEntry::_40L;
+        }
+        else if (entry.mode == ScoreEntry::_2M) {
+            scores2M.scores.push_back(entry);
+            lastInsertion = ScoreEntry::_2M;
+        }
+        else if (entry.mode == ScoreEntry::_UN) {
+            scoresUN.scores.push_back(entry);
+            lastInsertion = ScoreEntry::_UN;
+        }
+    }
+    if (lastInsertion == ScoreEntry::_40L)
+        scores40L.scores.pop_back();
+    else if (lastInsertion == ScoreEntry::_2M)
+        scores2M.scores.pop_back();
+    else if (lastInsertion == ScoreEntry::_UN)
+        scoresUN.scores.pop_back();
+
+    for (auto& i : scoresModes) {
+        if (i.scores.size()) {
+            //std::cout << i.scores[2].scoreData.tscore_number.getString().toAnsiString() << ' ' << i.scores[2].timeData.tseconds.getString().toAnsiString() << '\n';
+            i.viewRange.first = 0;
+            i.viewRange.second = (i.scores.size() >= 5 ? 5 : i.scores.size()) - 1;
+            for (auto k = 0; k < (i.scores.size() >= 5 ? 5 : i.scores.size()); k++)
+                i.view[k] = i.scores[k];
+        }
+    }
+    fscores.close();
+}
+
 void ScoreModeMenu_t::init(sf::RenderWindow& window, const Theme& t) {
     const auto text_pos_x = 30;
     const auto shape_pos_x = 20;
@@ -855,6 +913,20 @@ void ScoreModeMenu_t::init(sf::RenderWindow& window, const Theme& t) {
     mode.setCharacterSize(60);
     mode.setOrigin(mode.getLocalBounds().width / 2.f, mode.getLocalBounds().top / 2.f);
     mode.setPosition(modeSeparator.getSize().x / 2.f, 10);
+
+    for (auto& s : view) {
+        s.pieceData.tpps.setFont(font);
+        s.pieceData.tpieces.setFont(font);
+        s.pieceData.tpieces_count.setFont(font);
+        s.timeData.tmilliseconds.setFont(font);
+        s.timeData.tseconds.setFont(font);
+        s.timeData.ttime.setFont(font);
+        s.lineData.tlines.setFont(font);
+        s.lineData.tlines_count.setFont(font);
+        s.lineData.tlines_goal.setFont(font);
+        s.scoreData.tscore.setFont(font);
+        s.scoreData.tscore_number.setFont(font);
+    }
     
     back.colour = get(gen);
     back.text.setFont(font);
@@ -877,6 +949,39 @@ void ScoreModeMenu_t::init(sf::RenderWindow& window, const Theme& t) {
     remove.shape.setOutlineThickness(BORDER);
     remove.shape.setOutlineColor(t == Theme::Dark ? sf::Color::Black : sf::Color::White);
     remove.shape.setFillColor(button_colours[remove.colour]);
+
+    for (auto i = 0; i < view.size(); i++) {
+        auto& s = view[i].shape;
+        auto& time = view[i].timeData;
+        auto& score = view[i].scoreData;
+        auto& piece = view[i].pieceData;
+        auto& line = view[i].lineData;
+        if (view[i].colour != -1) {
+            for (auto j = 0; j < view[i].separator.size(); j++) {
+                auto& p = view[i].separator[j];
+                p.setSize(sf::Vector2f(BORDER, 80));
+                p.setFillColor(t == Theme::Dark ? sf::Color::White : sf::Color::Black);
+                p.setPosition(30 + 440 / (view[i].separator.size() + 1) * (j + 1), (i + 1) * 108 + 5);
+            }
+            s.setOutlineThickness(BORDER);
+            s.setOutlineColor(t == Theme::Dark ? sf::Color::Black : sf::Color::White);
+            s.setPosition(30, (i + 1) * 108);
+            s.setSize(sf::Vector2f(440, 90));
+            s.setFillColor(button_colours[view[i].colour]);
+            score.tscore.setPosition(30, (i + 1) * 108);
+            score.tscore_number.setPosition(30, (i + 1) * 108 + 40);
+            score.tscore_number.setCharacterSize(40);
+            time.ttime.setPosition(140, (i + 1) * 108);
+            time.tseconds.setPosition(140, (i + 1) * 108 + 40);
+            time.tmilliseconds.setPosition(140 + 30, (i + 1) * 108 + 40);
+            piece.tpieces.setPosition(250, (i + 1) * 108);
+            piece.tpieces_count.setPosition(250, (i + 1) * 108 + 40);
+            piece.tpps.setPosition(250 + 30, (i + 1) * 108 + 40);
+            line.tlines.setPosition(360, (i + 1) * 108);
+            line.tlines_count.setPosition(360, (i + 1) * 108 + 40);
+            line.tlines_goal.setPosition(360 + 30, (i + 1) * 108 + 40);
+        }
+    }
 
     updatePos(window);
 }
@@ -901,6 +1006,13 @@ void ScoreModeMenu_t::draw(sf::RenderWindow& window) {
     window.draw(back.text);
     window.draw(remove.shape);
     window.draw(remove.text);
+
+    for (auto& i : view)
+        i.draw(window);
+}
+
+void ScoreModeMenu_t::update(sf::RenderWindow& window) {
+
 }
 
 void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
@@ -1064,46 +1176,6 @@ bool game(sf::RenderWindow& window, game_mode const& gm) {
         }
     }
 
-    if (new_piece) {
-        checkIfClearLine(score_data.score);
-        piece_data.pieces++;
-        piece_data.tpieces_count.setString(std::to_string(piece_data.pieces));
-        if(current) delete current;
-        current = next.front();
-        next.pop_front();
-        next.push_back(generatePiece(toptions_menu.randomiser.value, false));
-        current->emplace();
-        new_piece = false;
-        can_change = true;
-        next_sprites = emplaceNext(next);
-        auto time = piece_clock.getElapsedTime().asSeconds();
-        if (time > 3.0) score_data.score += 10;
-        else score_data.score += static_cast<int>(-13.33333 * time + 40);
-        piece_clock.restart();
-    }
-
-    window.clear(themeWindow(t));
-    //window.setView(view);
-
-    printBoard(window);
-    printTemp(window, temp_sprites);
-    printNext(window, next_sprites);
-    printText(window);
-    printBorders(window);
-
-    window.display();
-
-    if (lock_change >= 2) lock_change = 2;
-    if (toptions_menu.gravity.value.integral != 5 and toptions_menu.gravity.value.decimal != 5) {
-        auto check = gravity_clock.getElapsedTime();
-        bool yes = (toptions_menu.lock_delay.value.toDouble() > 5 ? false : true);
-        if ((check.asSeconds() >= toptions_menu.gravity.value.toDouble() + lock_change * toptions_menu.lock_delay.value.toDouble() / 2) and yes) {
-            current->move(None, RightDown, &new_piece);
-            gravity_clock.restart();
-            lock_change = 0;
-        }
-    }
-
     if (checkIfDead(current) or restart_game or leave or checkGameMode(gm)) {
         if (!restart_game and !leave) {
             ScoreEntry entry;
@@ -1121,7 +1193,7 @@ bool game(sf::RenderWindow& window, game_mode const& gm) {
             sf::Clock waitClock;
 
             prompt->discardTimer.restart();
-            while(waitClock.getElapsedTime().asSeconds() < (10 + 1)) {
+            while (waitClock.getElapsedTime().asSeconds() < (10 + 1)) {
 
                 prompt->updatePos(window);
 
@@ -1166,6 +1238,46 @@ bool game(sf::RenderWindow& window, game_mode const& gm) {
             return false;
         }
         gravity_clock.restart();
+    }
+
+    if (new_piece) {
+        checkIfClearLine(score_data.score);
+        piece_data.pieces++;
+        piece_data.tpieces_count.setString(std::to_string(piece_data.pieces));
+        if(current) delete current;
+        current = next.front();
+        next.pop_front();
+        next.push_back(generatePiece(toptions_menu.randomiser.value, false));
+        current->emplace();
+        new_piece = false;
+        can_change = true;
+        next_sprites = emplaceNext(next);
+        auto time = piece_clock.getElapsedTime().asSeconds();
+        if (time > 3.0) score_data.score += 10;
+        else score_data.score += static_cast<int>(-13.33333 * time + 40);
+        piece_clock.restart();
+    }
+
+    window.clear(themeWindow(t));
+    //window.setView(view);
+
+    printBoard(window);
+    printTemp(window, temp_sprites);
+    printNext(window, next_sprites);
+    printText(window);
+    printBorders(window);
+
+    window.display();
+
+    if (lock_change >= 2) lock_change = 2;
+    if (toptions_menu.gravity.value.integral != 5 and toptions_menu.gravity.value.decimal != 5) {
+        auto check = gravity_clock.getElapsedTime();
+        bool yes = (toptions_menu.lock_delay.value.toDouble() > 5 ? false : true);
+        if ((check.asSeconds() >= toptions_menu.gravity.value.toDouble() + lock_change * toptions_menu.lock_delay.value.toDouble() / 2) and yes) {
+            current->move(None, RightDown, &new_piece);
+            gravity_clock.restart();
+            lock_change = 0;
+        }
     }
 
     return true;
@@ -1675,20 +1787,24 @@ void scores_menu(sf::RenderWindow& window) {
         }
 
         if (event.type == sf::Event::MouseButtonPressed and sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            ScoreModeMenu_t::load(window);
             if (mouseIn(tscores_menu.buttons[3].area, mouse_pos)) {
                 action_clicked[Scores] = false;
             }
             else if (mouseIn(tscores_menu.buttons[0].area, mouse_pos)) {
                 action_clicked[Scores] = false;
                 action_clicked[Scores_40L] = true;
+                scores40L.init(window, t);
             }
             else if (mouseIn(tscores_menu.buttons[1].area, mouse_pos)) {
                 action_clicked[Scores] = false;
                 action_clicked[Scores_2M] = true;
+                scores2M.init(window, t);
             }
             else if (mouseIn(tscores_menu.buttons[2].area, mouse_pos)) {
                 action_clicked[Scores] = false;
                 action_clicked[Scores_UN] = true;
+                scoresUN.init(window, t);
             }
         }
     }
@@ -1711,6 +1827,9 @@ bool checkGameMode(game_mode const& gm) {
 void freeze(sf::Texture& texture) {
     for (auto i = 0; i < WIDTH; i++) {
         for (auto j = 0; j < HEIGHT; j++) {
+            if (board[j][i].getTexture() == &ghost) {
+                board[j][i].setTexture(empty);
+            }
             if (board[j][i].getTexture() != &empty and board[j][i].getTexture() != &blank) {
                 board[j][i].setTexture(texture);
             }

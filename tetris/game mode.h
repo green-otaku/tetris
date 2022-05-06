@@ -240,8 +240,9 @@ struct ScoreEntry {
     Score_info scoreData;
     Time_info timeData;
     void init(const Theme& t);
+    void draw(sf::RenderWindow& window);
     friend std::ostream& operator<<(std::ostream& os, ScoreEntry const& entry) {
-        os << static_cast<int>(entry.mode) << ';' << entry.colour << ';' << entry.pieceData << ';' << entry.lineData << ';' << entry.scoreData << ';' << entry.timeData << ";\n";
+        os << static_cast<int>(entry.mode) << ';' << entry.colour << ';' << entry.pieceData << ';' << entry.lineData << ';' << entry.scoreData << ';' << entry.timeData << ';' << '\n';
         return os;
     }
     friend std::istream& operator>>(std::istream& is, ScoreEntry& entry) {
@@ -257,14 +258,30 @@ struct ScoreEntry {
         ssPiece >> entry.pieceData;
         std::getline(is, temp, ';');
         std::stringstream ssLine(temp, std::ios::in);
-        ssPiece >> entry.lineData;
+        ssLine >> entry.lineData;
         std::getline(is, temp, ';');
         std::stringstream ssScore(temp, std::ios::in);
-        ssPiece >> entry.scoreData;
+        ssScore >> entry.scoreData;
         std::getline(is, temp, ';');
         std::stringstream ssTime(temp, std::ios::in);
         ssTime >> entry.timeData;
         return is;
+    }
+    ScoreEntry operator=(ScoreEntry const& rhs) {
+        mode = rhs.mode;
+        colour = rhs.colour;
+        pieceData.tpps.setString(rhs.pieceData.tpps.getString());
+        pieceData.tpieces.setString(rhs.pieceData.tpieces.getString());
+        pieceData.tpieces_count.setString(rhs.pieceData.tpieces_count.getString());
+        lineData.tlines.setString(rhs.lineData.tlines.getString());
+        lineData.tlines_count.setString(rhs.lineData.tlines_count.getString());
+        lineData.tlines_goal.setString(rhs.lineData.tlines_goal.getString());
+        scoreData.tscore.setString(rhs.scoreData.tscore.getString());
+        scoreData.tscore_number.setString(rhs.scoreData.tscore_number.getString());
+        timeData.tmilliseconds.setString(rhs.timeData.tmilliseconds.getString());
+        timeData.tseconds.setString(rhs.timeData.tseconds.getString());
+        timeData.ttime.setString(rhs.timeData.ttime.getString());
+        return *this;
     }
 };
 
@@ -282,7 +299,6 @@ struct SavePrompt {
     data_t saveButton;
     sf::Clock discardTimer;
     void show(sf::RenderWindow& window);
-    void save(Option const& option);
     void init(sf::RenderWindow& window);
     void setPos(sf::RenderWindow& window);
     void updatePos(sf::RenderWindow& window);
@@ -293,6 +309,8 @@ inline SavePrompt* prompt;
 
 struct ScoreModeMenu_t {
     std::vector<ScoreEntry> scores;
+    std::array<ScoreEntry, 5> view;
+    pair_int viewRange;
     sf::Text mode;
     sf::RectangleShape modeSeparator;
     using data_t = SavePrompt::_4Val<sf::Text, sf::IntRect, sf::RectangleShape, int>;
@@ -302,7 +320,11 @@ struct ScoreModeMenu_t {
     void updatePos(sf::RenderWindow& window);
     void draw(sf::RenderWindow& window);
     void operate(sf::RenderWindow& window);
-    ScoreModeMenu_t(std::string const& s) : mode(s, font) {}
+    void update(sf::RenderWindow& window);
+    ScoreModeMenu_t(std::string const& s, int c = -1) : mode(s, font) {
+        for (auto& i : view) i.colour = c;
+    }
+    static void load(sf::RenderWindow& window);
 };
 inline std::array<ScoreModeMenu_t, 3> scoresModes = { { { "40 LINES" } , { "2 MINUTES" }, { "UNLIMITED" } } };
 inline auto& scores40L = scoresModes[0];

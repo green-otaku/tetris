@@ -179,7 +179,7 @@ bool piece_type::rotate(double deg, int test) {
                 diffy = py1 - 2;
             }
             for (auto const& [x, y] : temp_pos)
-                if (!(y < 0 or x < 0)) matrix[y - diffy][x - diffx] = 1;
+                matrix[y - diffy][x - diffx] = 1;
             matrix = rotate4(matrix, 90);
             if (py1 == py2 and px1 < px2) {
                 diffx = 1;

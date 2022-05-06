@@ -21,9 +21,6 @@ void initAll(Theme const& t, sf::RenderWindow& window) {
     initKeyConfig(t, window);
     tscores_menu.setPos(window);
     tscores_menu.setColour(t);
-    for (auto& i : scoresModes) {
-        i.init(window, t);
-    }
 }
 
 void initTextures(Theme const& t) {
