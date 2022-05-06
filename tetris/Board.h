@@ -14,5 +14,6 @@ inline auto& board = board_.data;
 void checkIfClearLine(unsigned int& score);
 void moveLines(int line_id);
 bool checkIfDead(piece_type*);
+void clearBoard();
 
 #endif

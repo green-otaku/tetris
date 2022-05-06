@@ -35,6 +35,26 @@ bool checkIfDead(piece_type* piece) {
 	int counter = 0;
 	for (auto const& [x, y] : piece->pos)
 		if (y < 4) counter++;
-	if (counter >= 3) return true;
+	if (counter >= 3) {
+		for (auto const&[x, y] : piece->pos) {
+			if (!(board[y + 1][x].getTexture() == &empty or
+				board[y + 1][x].getTexture() == &blank or
+				checkIfOwned(*piece, point_pos(x, y + 1)) or
+				board[y + 1][x].getTexture() == &ghost)) {
+				return true;
+			}
+		}
+	}
 	return false;
+}
+
+void clearBoard() {
+	for (auto j = 0; j < WIDTH; j++) {
+		for (auto i = 0; i < ADDITIONAL_HEIGHT; i++) {
+			board[i][j].setTexture(blank);
+		}
+		for(auto i = ADDITIONAL_HEIGHT; i < HEIGHT; i++){
+			board[i][j].setTexture(empty);
+		}
+	}
 }

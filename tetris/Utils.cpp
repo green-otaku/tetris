@@ -9,14 +9,21 @@
 #pragma warning(disable: 4244)
 
 void initAll(Theme const& t, sf::RenderWindow& window) {
+    initOptions(t, window);
     initTextures(t);
     initPieces(t);
     initFont();
     initBoardBorders(t);
     initBonusBorders(t);
-    initBackground();
+    initBackground(toptions_menu.background.value);
     initMenu(t, window);
-    initFile();
+    initPlayMenu(t, window);
+    initKeyConfig(t, window);
+    tscores_menu.setPos(window);
+    tscores_menu.setColour(t);
+    for (auto& i : scoresModes) {
+        i.init(window, t);
+    }
 }
 
 void initTextures(Theme const& t) {
@@ -116,8 +123,11 @@ void initBonusBorders(Theme const& t) {
     bonus_borders[BONUS_VERTICAL_BORDERS + 2].setPosition(TILE_SIZE * WIDTH, WINDOW_HEIGHT / 1.5);
 }
 
-void initBackground() {
-    background_texture.loadFromFile("./background.png");
+void initBackground(int bg) {
+    std::string loc = "./background";
+    if (bg) loc += ".png";
+    else loc += "2.png";
+    background_texture.loadFromFile(loc);
     background.setTexture(background_texture);
     background.setScale(WINDOW_WIDTH * 1.0 / background_texture.getSize().x, WINDOW_HEIGHT * 1.0 / background_texture.getSize().y);
     logo_texture.loadFromFile("./logo.png");
@@ -127,6 +137,23 @@ void initBackground() {
 void initMenu(const Theme& t, sf::RenderWindow& window) {
     tmenu.setPos(window);
     tmenu.setColour(t);
+}
+
+void initPlayMenu(const Theme& t, sf::RenderWindow& window) {
+    tplay_menu.setPos(window);
+    tplay_menu.setColour(t);
+}
+
+void initOptions(const Theme& t, sf::RenderWindow& window) {
+    toptions_menu.init();
+    toptions_menu.setPos(window);
+    toptions_menu.setColour(t);
+}
+
+void initKeyConfig(const Theme& t, sf::RenderWindow& window) {
+    toptions_menu.key_config.init();
+    toptions_menu.key_config.setPos(window);
+    toptions_menu.key_config.setColour(t);
 }
 
 bool checkIfOwned(piece_type const& piece, point_pos const& tile) {
@@ -243,6 +270,12 @@ sf::Sprite* emplaceTemp(piece_type* temp) {
         }
     }
     return sprites;
+}
+
+void clearTemp(sf::Sprite* sprites) {
+    for (auto i = 0; i < 4; i++) {
+        sprites[i].setTexture(blank);
+    }
 }
 
 int getPivot(Piece const& p) {
@@ -402,6 +435,18 @@ std::vector<int> getDigits(int n) {
         n /= 10;
     } while (n >= 10);
     return v;
+}
+
+void updateTheme(const Theme& t) {
+    initTextures(t);
+    initPieces(t);
+    initFont();
+    initBoardBorders(t);
+    initBoardBorders(t);
+    tmenu.setColour(t);
+    tplay_menu.setColour(t);
+    toptions_menu.setColour(t);
+    toptions_menu.key_config.setColour(t);
 }
 
 //std::map<Piece, pos_type> starting_position = {

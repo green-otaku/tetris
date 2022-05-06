@@ -17,8 +17,8 @@ inline auto TETRIS_COLOURS_MODE = TETRIS_COLOURS_FLEXIBLE;
 
 //Enums
 enum Piece { I, J, L, O, S, T, Z };
-enum Direction { Left = -1, None = 0, Right = 1 };
-enum Option { Play, Options, Scores, Exit };
+enum Direction { LeftUp = -1, None = 0, RightDown = 1 };
+enum Option { Play, Play_40L, Play_2M, Play_UN, Options, Key_Config, Scores, Scores_40L, Scores_2M, Scores_UN, Exit };
 
 enum class Theme { Light, Dark };
 
@@ -28,8 +28,11 @@ void initTextures(Theme const& t);
 void initPieces(Theme const& t);
 void initBoardBorders(Theme const& t);
 void initBonusBorders(Theme const& t);
-void initBackground();
+void initBackground(int);
 void initMenu(const Theme& t, sf::RenderWindow& window);
+void initPlayMenu(const Theme& t, sf::RenderWindow& window);
+void initOptions(const Theme& t, sf::RenderWindow& window);
+void initKeyConfig(const Theme& t, sf::RenderWindow& window);
 
 //Type shortenings
 using Tile = sf::Sprite;
@@ -54,7 +57,7 @@ inline const auto WIDTH = 10; //number of tiles in a row
 inline const auto TILE_SIZE = BORDER + DIMENSIONS.x;
 inline const auto TEXTURE_SIZE = 10;
 inline const auto WINDOW_HEIGHT = static_cast<unsigned int>(24 * TILE_SIZE);
-inline const auto WINDOW_WIDTH = static_cast<unsigned int>(600);
+inline const auto WINDOW_WIDTH = static_cast<unsigned int>(500);
 inline const auto COLOURS_NUMBER = 7;
 inline const auto PI = 3.14159265;
 inline const auto BOARD_VERTICAL_BORDERS = 2;
@@ -63,7 +66,6 @@ inline const auto BONUS_VERTICAL_BORDERS = 1;
 inline const auto BONUS_HORIZONTAL_BORDERS = 3;
 
 //Variables
-inline sf::Time gravity;
 inline Option option;
 inline bool restart_game = false;
 
@@ -82,6 +84,7 @@ void printTemp(sf::RenderWindow& window, sf::Sprite* sprites);
 void printNext(sf::RenderWindow& window, sf::Sprite* sprites);
 sf::Sprite* emplaceNext(std::list<piece_type*> const& next);
 sf::Sprite* emplaceTemp(piece_type* temp);
+void clearTemp(sf::Sprite* sprites);
 int getPivot(Piece const& p);
 rotate3matrix rotate3(const rotate3matrix& origin, double deg);
 rotate4matrix rotate4(rotate4matrix const& origin, double deg);
@@ -91,6 +94,7 @@ void printBonusBorders(sf::RenderWindow& window);
 void printBorders(sf::RenderWindow& window);
 int getDigitsN(int n);
 std::vector<int> getDigits(int n);
+void updateTheme(const Theme& t);
 
 //Textures
 inline std::array<sf::Texture, COLOURS_NUMBER> colours;
@@ -104,6 +108,13 @@ inline sf::Sprite background;
 inline sf::Texture logo_texture;
 inline std::array<sf::Texture, 4> button_textures;
 inline sf::Texture highlighted; //8
+inline std::array<sf::Color, 5> button_colours = {{
+    { 1, 1, 240 },
+    { 239, 160, 0 },
+    { 160, 0, 241 },
+    { 240, 1, 2 },
+    { 210, 210, 210 } // highlighted
+}};
 
 //extern std::map<Piece, pos_type> starting_position;
 static std::map<Piece, pos_type> starting_position = {

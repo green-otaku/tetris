@@ -3,11 +3,20 @@
 #include "Piece.h"
 #include <iostream>
 #include <cmath>
+#include "game mode.h"
 #pragma warning(disable: 26812)
 //#pragma warning(disable: 33011)
 
-unsigned int piece_type::colour = static_cast<unsigned int>(0);
-unsigned int piece_type::piece = static_cast<unsigned int>(0);
+std::map<Piece, int> piece_type::piece_colour{
+    { I, 0 },
+    { T, 5 },
+    { L, 2 },
+    { J, 1 },
+    { O, 3 },
+    { S, 4 },
+    { Z, 6 }
+};
+
 template<class T, class Y>
 using ct_t = std::common_type_t<T, Y>;
 
@@ -58,13 +67,14 @@ bool piece_type::move(Direction const& dx, Direction const& dy, bool* new_piece)
                 break;
             }
         }
+        if (!can_move) break;
         // wtf does this for do idk but its important ig
         for(auto i = 0; i < 4; i++) {
             auto const& [x, y] = pos[i];
             if ((y + dy > 23) or (board[y + dy][x].getTexture() != &empty and
                 board[y + dy][x].getTexture() != &blank and
                 !checkIfOwned(*this, point_pos(x, y + dy)) and
-                board[y + dy][x].getTexture() != & ghost)) {
+                board[y + dy][x].getTexture() != &ghost)) {
                 if (new_piece) *new_piece = true;
                 return false;
             }
@@ -107,8 +117,10 @@ bool piece_type::instantMove(Direction const& dx, Direction const& dy, bool inst
                 break;
             }
         }
+        if ((y_axis and toptions_menu.instant_down_power.value == depth) or (!y_axis and toptions_menu.left_right_power.value == depth))
+            break;
         if (can_move) (y_axis ? depth++ : 
-            dx == Right ? depth++ : depth--);
+            dx == RightDown ? depth++ : depth--);
         else break;
     }
     if (depth) {
@@ -120,7 +132,7 @@ bool piece_type::instantMove(Direction const& dx, Direction const& dy, bool inst
         for (auto i = 0; i < 4; i++) {
             auto& [x, y] = pos[i];
             if (y_axis) y += depth - 1;
-            else x += depth - (dx == Right ? 1 : -1);
+            else x += depth - (dx == RightDown ? 1 : -1);
             board[y][x].setTexture(colours[this_colour]);
         }
         if (insta_place and new_piece) *new_piece = true;
@@ -137,107 +149,77 @@ bool piece_type::rotate(double deg, int test) {
         auto entry = wall_kick_I.find(key(rotate_state % 4, (rotate_state + static_cast<int>(deg / 90)) % 4));
         auto value = (entry != wall_kick_I.end() ? entry->second[test] : pair_int(0, 0));
         pos_type temp_pos;
+        pos_type new_pos;
         for (auto i = 0; i < 4; i++)
             temp_pos[i] = pos[i] + value;
-        auto [px1, py1] = temp_pos[1];
-        auto [px2, py2] = temp_pos[2];
-        auto [diffx, diffy] = pair_int();
-        if (py1 == py2 and px1 < px2) {
-            diffx = px1 - 1;
-            diffy = py1 - 1;
-        }
-        else if (px1 == px2 and py1 < py2) {
-            diffx = px1 - 2;
-            diffy = py1 - 1;
-        }
-        else if (py1 == py2 and px1 > px2) {
-            diffx = px1 - 2;
-            diffy = py1 - 2;
-        }
-        else if (px1 == px2 and py1 > py2) {
-            diffx = px1 - 1;
-            diffy = py1 - 2;
-        }
         rotate4matrix matrix = { {
             { 0, 0, 0, 0 },
             { 0, 0, 0, 0 },
             { 0, 0, 0, 0 },
             { 0, 0, 0, 0 }
-        } };
-        for (auto const& [x, y] : temp_pos)
-            if(!(y < 0 or x < 0)) matrix[y - diffy][x - diffx] = 1;
-        matrix = rotate4(matrix, deg);
-        /*
-        0 0 0 0
-        1o1t1 1
-        0 0 0 0
-        0 0 0 0
-        px1, py1 = { 1, 1 }
-        px2, py2 = { 2, 1 }
-
-        0 0 1 0
-        0 0o1 0
-        0 0t1 0
-        0 0 1 0
-        npx1, npy1 = { px2, py2 }
-        npx2, npy2 = { px1 + 1, py1 + 1 }
-
-        0 0 0 0
-        0 0 0 0
-        1t1o1 1
-        0 0 0 0
-        n2px1, n2py1 = { npx2, npy2 }
-        n2px2, n2py2 = { npx1 - 1, npy1 + 1 }
-
-        0 1 0 0
-        0t1 0 0
-        0o1 0 0
-        0 1 0 0
-        n3px1, n3py1 = { n2px2, n2py2 }
-        n3px2, n3py2 = { n2px1 - 1, n2py1 - 1 }
-
-        ...
-        px1, py1 = { n3px2, n3py2 }
-        px2, py2 = { n3px1 + 1, n3py1 - 1 }
-        */
-        if (py1 == py2 and px1 < px2) {
-            diffx = 1;
-            diffy = 1;
-        }
-        else if (px1 == px2 and py1 < py2) {
-            diffx = -1;
-            diffy = 1;
-        }
-        else if (py1 == py2 and px1 > px2) {
-            diffx = -1;
-            diffy = -1;
-        }
-        else if (px1 == px2 and py1 > py2) {
-            diffx = 1;
-            diffy = -1;
-        }
-        pos_type new_pos;
-        new_pos[1] = pair_int{ px2, py2 };
-        new_pos[2] = pair_int{ px1 + diffx, py1 + diffy};
-        px1 = new_pos[1].first;
-        py1 = new_pos[1].second;
-        px2 = new_pos[2].first;
-        py2 = new_pos[2].second;
-        if (matrix[0][1] == 1) {
-            new_pos[0] = pair_int{ px1, py1 + 1 };
-            new_pos[3] = pair_int{ px2, py2 - 1 };
-        }
-        else if (matrix[0][2] == 1) {
-            new_pos[3] = pair_int{ px2, py2 + 1 };
-            new_pos[0] = pair_int{ px1, py1 - 1 };
-        }
-        else if (matrix[1][0] == 1) {
-            new_pos[0] = pair_int{ px1 - 1, py2 };
-            new_pos[3] = pair_int{ px2 + 1, py1 };
-        }
-        else if (matrix[2][0] == 1) {
-            new_pos[3] = pair_int{ px2 - 1, py2 };
-            new_pos[0] = pair_int{ px1 + 1, py1 };
+        } }; 
+        for (auto i = 0; i < deg / 90; i++) {
+            auto [px1, py1] = temp_pos[1];
+            auto [px2, py2] = temp_pos[2];
+            auto [diffx, diffy] = pair_int();
+            if (py1 == py2 and px1 < px2) {
+                diffx = px1 - 1;
+                diffy = py1 - 1;
+            }
+            else if (px1 == px2 and py1 < py2) {
+                diffx = px1 - 2;
+                diffy = py1 - 1;
+            }
+            else if (py1 == py2 and px1 > px2) {
+                diffx = px1 - 2;
+                diffy = py1 - 2;
+            }
+            else if (px1 == px2 and py1 > py2) {
+                diffx = px1 - 1;
+                diffy = py1 - 2;
+            }
+            for (auto const& [x, y] : temp_pos)
+                if (!(y < 0 or x < 0)) matrix[y - diffy][x - diffx] = 1;
+            matrix = rotate4(matrix, 90);
+            if (py1 == py2 and px1 < px2) {
+                diffx = 1;
+                diffy = 1;
+            }
+            else if (px1 == px2 and py1 < py2) {
+                diffx = -1;
+                diffy = 1;
+            }
+            else if (py1 == py2 and px1 > px2) {
+                diffx = -1;
+                diffy = -1;
+            }
+            else if (px1 == px2 and py1 > py2) {
+                diffx = 1;
+                diffy = -1;
+            }
+            new_pos[1] = pair_int{ px2, py2 };
+            new_pos[2] = pair_int{ px1 + diffx, py1 + diffy };
+            px1 = new_pos[1].first;
+            py1 = new_pos[1].second;
+            px2 = new_pos[2].first;
+            py2 = new_pos[2].second;
+            if (matrix[0][1] == 1) {
+                new_pos[0] = pair_int{ px1, py1 + 1 };
+                new_pos[3] = pair_int{ px2, py2 - 1 };
+            }
+            else if (matrix[0][2] == 1) {
+                new_pos[3] = pair_int{ px2, py2 + 1 };
+                new_pos[0] = pair_int{ px1, py1 - 1 };
+            }
+            else if (matrix[1][0] == 1) {
+                new_pos[0] = pair_int{ px1 - 1, py2 };
+                new_pos[3] = pair_int{ px2 + 1, py1 };
+            }
+            else if (matrix[2][0] == 1) {
+                new_pos[3] = pair_int{ px2 - 1, py2 };
+                new_pos[0] = pair_int{ px1 + 1, py1 };
+            }
+            temp_pos = new_pos;
         }
         bool wall_kick = false;
         do {
@@ -256,10 +238,8 @@ bool piece_type::rotate(double deg, int test) {
             for (const auto& [x, y] : pos)
                 board[y][x].setTexture(y >= 4 ? empty : blank);
             for (auto i = 0; i < 4; i++) {
+                pos[i] = new_pos[i];
                 auto& [x, y] = pos[i];
-                auto const [tx, ty] = new_pos[i];
-                x = tx;
-                y = ty;
                 board[y][x].setTexture(colours[this_colour]);
             }
             rotate_state += static_cast<int>(deg / 90);
@@ -386,9 +366,38 @@ void piece_type::setGhost() {
         for (auto i = 0; i < 4; i++) {
             auto& [x, y] = pos[i];
             auto& [gx, gy] = ghost_pos[i];
-            board[y + ghost_depth][x].setTexture(ghost);
-            gx = x;
-            gy = y + ghost_depth;
+                gx = x;
+                gy = y + ghost_depth;
+                board[y + ghost_depth][x].setTexture(ghost);
         }
+    }
+}
+
+piece_type* generatePiece(std::string const& mode, bool restart) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    static bool genBag = true;
+    static std::vector<Piece> bag;
+    if (restart) {
+        genBag = true;
+        bag.clear();
+    }
+    if(mode == "RANDOM") {
+        std::uniform_int_distribution<> get(0, 6); // [0, 6] || [0, 7)
+        return new piece_type(piece_cast(get(gen)));
+    }
+    else {
+        int bagSize = (mode == "7BAG" ? 7 : 14);
+        if (genBag) {
+            for (auto i = 0; i < bagSize; i++)
+                bag.push_back(piece_cast(i));
+            genBag = false;
+        }
+        std::uniform_int_distribution<> get(0, bag.size() - 1);
+        auto piece = get(gen);
+        auto* returnPiece = new piece_type(bag[piece]);
+        bag.erase(bag.begin() + piece);
+        if (!bag.size()) genBag = true;
+        return returnPiece;
     }
 }

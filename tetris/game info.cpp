@@ -1,4 +1,5 @@
 #include "game info.h"
+#include "game mode.h"
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4305)
 
@@ -34,7 +35,7 @@ void Line_info::reset() {
 	lines = 0;
 	lines_goal = 0;
 	tlines_count.setString("0");
-	tlines_goal.setString("40");
+	tlines_goal.setString("/40");
 }
 
 void Line_info::update() {
@@ -75,7 +76,7 @@ void printText(sf::RenderWindow& window) {
 	window.draw(piece_data.tpps);
 	window.draw(line_data.tlines);
 	window.draw(line_data.tlines_count);
-	window.draw(line_data.tlines_goal);
+	if(gm == GM_40_LINES) window.draw(line_data.tlines_goal);
 	window.draw(time_data.ttime);
 	window.draw(time_data.tseconds);
 	window.draw(time_data.tmilliseconds);
