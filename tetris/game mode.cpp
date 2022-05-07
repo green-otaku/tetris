@@ -855,6 +855,7 @@ void ScoreEntry::draw(sf::RenderWindow& window) {
 }
 
 void ScoreModeMenu_t::load(sf::RenderWindow& window) {
+    static bool loadEmptyScore = true;
     fscores.open("./scores.txt", std::ios::in);
     scores40L.scores.clear();
     scores2M.scores.clear();
@@ -883,6 +884,10 @@ void ScoreModeMenu_t::load(sf::RenderWindow& window) {
     else if (lastInsertion == ScoreEntry::_UN)
         scoresUN.scores.pop_back();
 
+    if (loadEmptyScore) {
+        emptyScore = scoresModes[0].view[0];
+        loadEmptyScore = false;
+    }
     for (auto& i : scoresModes) {
         if (i.scores.size()) {
             //std::cout << i.scores[2].scoreData.tscore_number.getString().toAnsiString() << ' ' << i.scores[2].timeData.tseconds.getString().toAnsiString() << '\n';
@@ -968,18 +973,32 @@ void ScoreModeMenu_t::init(sf::RenderWindow& window, const Theme& t) {
             s.setPosition(30, (i + 1) * 108);
             s.setSize(sf::Vector2f(440, 90));
             s.setFillColor(button_colours[view[i].colour]);
-            score.tscore.setPosition(30, (i + 1) * 108);
-            score.tscore_number.setPosition(30, (i + 1) * 108 + 40);
+            score.tscore.setCharacterSize(20);
+            score.tscore.setPosition(55, (i + 1) * 108);
+            score.tscore_number.setOrigin(score.tscore_number.getGlobalBounds().width / 2.f, score.tscore_number.getGlobalBounds().height / 2.f);
             score.tscore_number.setCharacterSize(40);
-            time.ttime.setPosition(140, (i + 1) * 108);
-            time.tseconds.setPosition(140, (i + 1) * 108 + 40);
-            time.tmilliseconds.setPosition(140 + 30, (i + 1) * 108 + 40);
-            piece.tpieces.setPosition(250, (i + 1) * 108);
-            piece.tpieces_count.setPosition(250, (i + 1) * 108 + 40);
-            piece.tpps.setPosition(250 + 30, (i + 1) * 108 + 40);
-            line.tlines.setPosition(360, (i + 1) * 108);
-            line.tlines_count.setPosition(360, (i + 1) * 108 + 40);
-            line.tlines_goal.setPosition(360 + 30, (i + 1) * 108 + 40);
+            score.tscore_number.setPosition(75, (i + 1) * 108 + 30);
+            time.ttime.setCharacterSize(20);
+            time.ttime.setPosition(173, (i + 1) * 108);
+            time.tseconds.setOrigin(time.tseconds.getGlobalBounds().width / 2.f, time.tseconds.getGlobalBounds().height / 2.f);
+            time.tseconds.setCharacterSize(40);
+            time.tseconds.setPosition(185, (i + 1) * 108 + 30);
+            time.tmilliseconds.setCharacterSize(20);
+            time.tmilliseconds.setPosition(176, (i + 1) * 108 + 65);
+            piece.tpieces.setCharacterSize(20);
+            piece.tpieces.setPosition(275, (i + 1) * 108);
+            piece.tpieces_count.setOrigin(piece.tpieces_count.getGlobalBounds().width / 2.f, piece.tpieces_count.getGlobalBounds().height / 2.f);
+            piece.tpieces_count.setCharacterSize(40);
+            piece.tpieces_count.setPosition(296, (i + 1) * 108 + 30);
+            piece.tpps.setCharacterSize(20);
+            piece.tpps.setPosition(277, (i + 1) * 108 + 65);
+            line.tlines.setPosition(390, (i + 1) * 108);
+            line.tlines.setCharacterSize(20);
+            line.tlines_count.setOrigin(line.tlines_count.getGlobalBounds().width / 2.f, line.tlines_count.getGlobalBounds().height / 2.f);
+            line.tlines_count.setCharacterSize(40);
+            line.tlines_count.setPosition(410, (i + 1) * 108 + 30);
+            line.tlines_goal.setPosition(400, (i + 1) * 108 + 65);
+            line.tlines_goal.setCharacterSize(20);
         }
     }
 
@@ -997,6 +1016,13 @@ void ScoreModeMenu_t::updatePos(sf::RenderWindow& window) {
     remove.area.height = remove.area.top + remove.shape.getSize().y + 5;
     remove.area.width = remove.area.left + remove.shape.getSize().x + 5;
 
+    for (auto& e : view) {
+        e.area.top = window.getPosition().y + e.shape.getPosition().y + 30;
+        e.area.left = window.getPosition().x + e.shape.getPosition().x + 5;
+        e.area.height = e.area.top + e.shape.getSize().y + 5;
+        e.area.width = e.area.left + e.shape.getSize().x + 5;
+    }
+
 }
 
 void ScoreModeMenu_t::draw(sf::RenderWindow& window) {
@@ -1011,8 +1037,8 @@ void ScoreModeMenu_t::draw(sf::RenderWindow& window) {
         i.draw(window);
 }
 
-void ScoreModeMenu_t::update(sf::RenderWindow& window) {
-
+void ScoreModeMenu_t::update(sf::RenderWindow& window, Direction direction) {
+    
 }
 
 void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
@@ -1035,17 +1061,67 @@ void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
         }
         else remove.shape.setFillColor(button_colours[remove.colour]);
 
+        for (auto i = 0; i < view.size(); i++) {
+            auto& e = view[i];
+            if (mouseIn(e.area, mouse_pos) and !scoreSelected) {
+                e.shape.setFillColor(button_colours[4]);
+            }
+            else if(!scoreSelected and e.colour != -1) {
+                e.shape.setFillColor(button_colours[e.colour]);
+            }
+        }
+        
         if (event.type == sf::Event::MouseButtonPressed and sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             if (mouseIn(back.area, mouse_pos)) {
                 action_clicked[Scores] = true;
                 action_clicked[Scores_40L] = false;
                 action_clicked[Scores_2M] = false;
                 action_clicked[Scores_UN] = false;
+                scoreSelected = false;
+                currentChoice = -1;
                 return void();
             }
 
-            if (scoreSelected and mouseIn(remove.area, mouse_pos)) {
+            for (auto i = 0; i < view.size(); i++) {
+                auto& e = view[i];
+                if (mouseIn(e.area, mouse_pos)) {
+                    scoreSelected = true;
+                    currentChoice = i;
+                }
+            }
 
+            if (scoreSelected and mouseIn(remove.area, mouse_pos)) {
+                if (scores.size() == 5) {
+                    scores.erase(scores.begin() + currentChoice);
+                    for (auto i = currentChoice; i < view.size() - 1; i++) {
+                        view[i] = view[i + 1];
+                    }
+                    view.back() = emptyScore;
+                    viewRange.second--;
+                }
+                else { // assumes that either last element of 'view' is non-existent or it is safe to insert elements from 'scores'
+                    scores.erase(scores.begin() + currentChoice);
+                    for (auto i = currentChoice; i < view.size() - 1; i++) {
+                        view[i] = view[i + 1];
+                    }
+                    if (scores.size() >= 5) {
+                        view.back() = scores[viewRange.second];
+                    }
+                    else {
+                        view.back() = emptyScore;
+                        viewRange.second--;
+                    }
+                }
+                scoreSelected = false;
+                currentChoice = -1;
+
+                foptions.open("./scores.txt", std::ios::out);
+                for (auto& i : scoresModes) {
+                    for (auto& e : i.scores) {
+                        foptions << e << '\n';
+                    }
+                }
+                foptions.close();
             }
         }
 

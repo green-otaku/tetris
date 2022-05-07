@@ -232,6 +232,7 @@ inline Option scores_viewed = Scores_40L;
 struct ScoreEntry {
     sf::RectangleShape shape;
     std::array<sf::RectangleShape, 3> separator;
+    sf::IntRect area;
     enum Mode_t { _40L = 0, _2M, _UN };
     Mode_t mode;
     int colour;
@@ -320,7 +321,8 @@ struct ScoreModeMenu_t {
     void updatePos(sf::RenderWindow& window);
     void draw(sf::RenderWindow& window);
     void operate(sf::RenderWindow& window);
-    void update(sf::RenderWindow& window);
+    enum Direction { Up, Null, Down };
+    void update(sf::RenderWindow& window, Direction direction = Null);
     ScoreModeMenu_t(std::string const& s, int c = -1) : mode(s, font) {
         for (auto& i : view) i.colour = c;
     }
@@ -331,6 +333,8 @@ inline auto& scores40L = scoresModes[0];
 inline auto& scores2M = scoresModes[1];
 inline auto& scoresUN = scoresModes[2];
 inline bool scoreSelected = false;
+inline int currentChoice = -1;
+inline ScoreEntry emptyScore;
 
 bool game(sf::RenderWindow& window, game_mode const& gm);
 void main_menu(sf::RenderWindow& window);
