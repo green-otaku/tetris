@@ -271,6 +271,7 @@ struct ScoreEntry {
     ScoreEntry operator=(ScoreEntry const& rhs) {
         mode = rhs.mode;
         colour = rhs.colour;
+        if(colour != -1) shape.setFillColor(button_colours[colour]);
         pieceData.tpps.setString(rhs.pieceData.tpps.getString());
         pieceData.tpieces.setString(rhs.pieceData.tpieces.getString());
         pieceData.tpieces_count.setString(rhs.pieceData.tpieces_count.getString());
@@ -321,7 +322,7 @@ struct ScoreModeMenu_t {
     void updatePos(sf::RenderWindow& window);
     void draw(sf::RenderWindow& window);
     void operate(sf::RenderWindow& window);
-    enum Direction { Up, Null, Down };
+    enum Direction { Up = -1, Null = 0, Down = 1 };
     void update(sf::RenderWindow& window, Direction direction = Null);
     ScoreModeMenu_t(std::string const& s, int c = -1) : mode(s, font) {
         for (auto& i : view) i.colour = c;

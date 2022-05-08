@@ -1038,7 +1038,16 @@ void ScoreModeMenu_t::draw(sf::RenderWindow& window) {
 }
 
 void ScoreModeMenu_t::update(sf::RenderWindow& window, Direction direction) {
-    
+    auto [bottom, upper] = viewRange;
+    if (bottom == 0 and upper < 4) return;
+    bottom += direction;
+    upper += direction;
+    if (bottom < 0 or upper >= scores.size()) return;
+    for (auto i = 0; i < view.size(); i++) {
+        view[i] = scores[i + bottom];
+    }
+    viewRange.first = bottom;
+    viewRange.second = upper;
 }
 
 void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
@@ -1070,7 +1079,7 @@ void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
                 e.shape.setFillColor(button_colours[e.colour]);
             }
         }
-        
+
         if (event.type == sf::Event::MouseButtonPressed and sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             if (mouseIn(back.area, mouse_pos)) {
                 action_clicked[Scores] = true;
@@ -1118,11 +1127,16 @@ void ScoreModeMenu_t::operate(sf::RenderWindow& window) {
                 foptions.open("./scores.txt", std::ios::out);
                 for (auto& i : scoresModes) {
                     for (auto& e : i.scores) {
-                        foptions << e << '\n';
+                        foptions << e;
                     }
                 }
                 foptions.close();
             }
+        }
+
+        if (event.type == sf::Event::MouseWheelScrolled) {
+            auto wheelOffset = event.mouseWheelScroll.delta;
+            update(window, (wheelOffset == -1 ? Direction::Down : Direction::Up));
         }
 
     }
