@@ -877,11 +877,11 @@ void ScoreModeMenu_t::load(sf::RenderWindow& window) {
             lastInsertion = ScoreEntry::_UN;
         }
     }
-    if (lastInsertion == ScoreEntry::_40L)
+    if (lastInsertion == ScoreEntry::_40L and scores40L.scores.size())
         scores40L.scores.pop_back();
-    else if (lastInsertion == ScoreEntry::_2M)
+    else if (lastInsertion == ScoreEntry::_2M and scores2M.scores.size())
         scores2M.scores.pop_back();
-    else if (lastInsertion == ScoreEntry::_UN)
+    else if (lastInsertion == ScoreEntry::_UN and scoresUN.scores.size())
         scoresUN.scores.pop_back();
 
     if (loadEmptyScore) {

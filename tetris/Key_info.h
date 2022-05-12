@@ -57,7 +57,7 @@ inline std::map<sf::Keyboard::Key, std::string> key_to_string{
     { sf::Keyboard::W, "W" },
     { sf::Keyboard::X, "X" },
     { sf::Keyboard::Y, "Y" },
-    { sf::Keyboard::Z, "A" },
+    { sf::Keyboard::Z, "Z" },
     { sf::Keyboard::Num0, "0" },
     { sf::Keyboard::Num1, "1" },
     { sf::Keyboard::Num2, "2" },
